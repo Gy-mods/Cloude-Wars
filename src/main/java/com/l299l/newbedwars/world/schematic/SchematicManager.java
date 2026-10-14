@@ -27,11 +27,6 @@ import java.util.Set;
 
 public class SchematicManager {
 
-    public static boolean isWorldEditPresent() {
-        return Bukkit.getPluginManager().getPlugin("WorldEdit") != null
-                || Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit") != null;
-    }
-
     public static File getSchematicsDir() {
         File dir = new File(NewBedwars.plugin.getDataFolder(), "schematics");
         if (!dir.exists()) dir.mkdirs();

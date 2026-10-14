@@ -213,7 +213,7 @@ If PlaceholderAPI is installed, all of the placeholders below become available u
 
 ## Roadmap
 
-NewBedwars will leave beta once stable operation is verified across all supported server versions (Paper 1.17 – 26.1.2).
+NewBedwars will leave beta once stable operation is verified across all supported server versions (Paper 1.17 – 26.3).
 
 - [x] Party support
 - [x] PlaceholderAPI support
@@ -223,8 +223,11 @@ NewBedwars will leave beta once stable operation is verified across all supporte
 - [x] More custom items (Iron Golem, Silverfish, etc.)
 - [x] Arena statistics and leaderboards
 - [x] Player profile GUI with stats history
+- [ ] Improved help and `/bw arena` command
 - [ ] In-game map voting system
+- [ ] More languages (full support)
 - [ ] Network / BungeeCord / Velocity mode
+- [ ] Website panel
 
 ---
 
@@ -312,7 +315,7 @@ Found a bug or have a suggestion? Please open an issue on **[GitHub](https://git
 
 ## License
 
-See [LICENSE.txt](LICENSE.txt).
+See [LICENSE.txt](https://github.com/l299l/NewBedwars-Free/blob/master/LICENSE.txt).
 
 ---
 

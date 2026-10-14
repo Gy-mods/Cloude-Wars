@@ -2,6 +2,15 @@
 
 All notable changes to NewBedwars are documented here.
 
+## [2.4-beta] - Coming soon
+
+### Added
+- 
+
+### Fixed
+- **`/bw arena create` command error** while trying to create with -sche with no installed WordEdit
+- **Setup gui** - now it's not longer possible to close it without choosing setup mode
+
 ---
 
 ## [2.3-beta] - 2026-09-24

@@ -3,6 +3,7 @@ package com.l299l.newbedwars.commands.bedwars.admin.manageArena;
 import com.l299l.newbedwars.NewBedwars;
 import com.l299l.newbedwars.arena.Arena;
 import com.l299l.newbedwars.arena.IArena;
+import com.l299l.newbedwars.extensions.ExtensionManager;
 import com.l299l.newbedwars.world.MainWorldCreator;
 import com.l299l.newbedwars.world.WorldCreator;
 import com.l299l.newbedwars.world.schematic.SchematicManager;
@@ -63,7 +64,7 @@ public class CreateCommand extends SubCommand {
         String schematic = findFlag(args, "-sche");
         boolean noTeleport = hasFlag(args, "-n");
 
-        if (schematic != null && !SchematicManager.isWorldEditPresent()) {
+        if (schematic != null && !ExtensionManager.isWorldEditPresent()) {
             msg.send(player, "WorldEditNotFound");
             return;
         }
@@ -107,23 +108,25 @@ public class CreateCommand extends SubCommand {
     public List<String> getSubcommandArguments(Player player, String[] args) {
         if (args.length == 4) {
             ArrayList<String> opts = new ArrayList<>();
-            opts.add("-sche");
+            if (ExtensionManager.isWorldEditPresent()) opts.add("-sche");
             opts.add("-n");
             return opts;
         }
-        // After "-sche", suggest available schematic names
-        if (args.length == 5 && args[3].equalsIgnoreCase("-sche")) {
+
+        if (args.length == 5 && args[3].equalsIgnoreCase("-sche") &&
+                ExtensionManager.isWorldEditPresent()) {
             return SchematicManager.listSchematics();
         }
-        // After "-sche <name>", offer "-n"
+
         if (args.length == 6 && args[3].equalsIgnoreCase("-sche")) {
             return Collections.singletonList("-n");
         }
-        // After "-n", offer "-sche"
-        if (args.length == 5 && args[3].equalsIgnoreCase("-n")) {
+
+        if (args.length == 5 && args[3].equalsIgnoreCase("-n") && ExtensionManager.isWorldEditPresent()) {
             return Collections.singletonList("-sche");
         }
-        if (args.length == 6 && args[3].equalsIgnoreCase("-n") && args[4].equalsIgnoreCase("-sche")) {
+        if (args.length == 6 && args[3].equalsIgnoreCase("-n") && args[4].equalsIgnoreCase("-sche") &&
+                ExtensionManager.isWorldEditPresent()) {
             return SchematicManager.listSchematics();
         }
         return null;

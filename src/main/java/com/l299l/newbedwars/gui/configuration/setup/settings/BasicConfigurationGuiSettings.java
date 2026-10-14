@@ -6,10 +6,13 @@ import com.l299l.newbedwars.arena.IArena;
 import com.l299l.newbedwars.arena.setup.Setup;
 import com.l299l.newbedwars.config.Messages;
 import com.l299l.newbedwars.gui.configuration.setup.guis.BasicConfigurationGUI;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 
 public class BasicConfigurationGuiSettings implements Listener {
     private final Messages msg;
@@ -40,6 +43,21 @@ public class BasicConfigurationGuiSettings implements Listener {
         }catch (Exception exeption) {
             msg.send(player, "ArenaNotExists");
             e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent e) {
+        if (!(e.getPlayer() instanceof Player)) return;
+        Player player = (Player) e.getPlayer();
+        if (e.getInventory().getHolder() instanceof BasicConfigurationGUI) {
+            IArena arena = Arena.arenaByWorld.get(player.getWorld());
+            if (arena.getSetupMode().equals(Setup.NO_SETUP)) {
+                player.sendMessage(ChatColor.RED + "You have to choose setup mode!");
+                Bukkit.getScheduler().runTaskLater(NewBedwars.plugin, () -> {
+                    player.openInventory(e.getInventory());
+                }, 1L);
+            }
         }
     }
 }

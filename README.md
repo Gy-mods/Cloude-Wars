@@ -125,7 +125,7 @@ If you'd rather paste in a finished map than build one from scratch in-game:
 | `/bw arena disable <name>` | Disable a running arena |
 | `/bw arena setup <name>` | Enter setup mode for an arena |
 | `/bw setLobby` | Set the global lobby spawn point |
-| `/bw manageGame` | In-game admin management panel (phase skip, force-start, stop) |
+| `/bw game <start/forcestart/stop/forcestop/nextPhase>` | In-game admin management panel (phase skip, force-start, stop) |
 | `/bw reload` | Save arenas, kick all players, and reload the configuration |
 
 ---

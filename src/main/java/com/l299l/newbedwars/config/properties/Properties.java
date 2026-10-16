@@ -52,6 +52,7 @@ public class Properties{
     public static String MySQLPassword;
     public static String MySQLDatabase;
     public static Integer MySQLPort;
+    public static Integer IronGolemLifetime;
 
     public Properties() {
         NewBedwars.plugin.reloadConfig();
@@ -84,6 +85,7 @@ public class Properties{
         DefaultGamerules.put("AllowPrivateChat", (Boolean) get("DefaultGamerules.AllowPrivateChat"));
         DefaultGamerules.put("AllowTeamDamage", (Boolean) get("DefaultGamerules.AllowTeamDamage"));
         DefaultGamerules.put("MakeSwordsPermanent", (Boolean) get("DefaultGamerules.MakeSwordsPermanent"));
+        DefaultGamerules.put("AllowMultipleGolems", (Boolean) get("DefaultGamerules.AllowMultipleGolems"));
         DefaultLanguage = (String) get("DefaultLanguage");
         //Game
         RejoinTimeEnabled = (Boolean) get("RejoinTimeLimitEnabled");
@@ -100,6 +102,9 @@ public class Properties{
         TntParticlesEnabled = tpe instanceof Boolean b ? b : true;
         Object dsh = get("DragonSpawnHeight");
         DragonSpawnHeight = dsh instanceof Integer i ? i : 20;
+        //Iron Golem settings
+        Object igl = get("IronGolemLifetime");
+        IronGolemLifetime = igl instanceof Integer i ? i : 120;
         DragonIndestructibleBlocks.clear();
         Object dibRaw = get("DragonIndestructibleBlocks");
         if (dibRaw instanceof List<?> dibList) {

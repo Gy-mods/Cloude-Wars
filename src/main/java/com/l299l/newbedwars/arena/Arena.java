@@ -99,6 +99,7 @@ public class Arena implements IArena {
     private final HashMap<Team, BukkitTask> dragonTasks = new HashMap<>();
     private final HashSet<String> placedBlocks;
     private final HashSet<String> blastProtBlocks;
+    private final HashSet<UUID> playersWithResourcePack;
     private String resourcePackUrl;
     private String resourcePackHash;
     private BukkitTask tntParticleTask;
@@ -135,6 +136,7 @@ public class Arena implements IArena {
         scoreboards = new HashMap<>();
         placedBlocks = new HashSet<>();
         blastProtBlocks = new HashSet<>();
+        playersWithResourcePack = new HashSet<>();
         shopGuiId = Properties.DefaultTeamShopGui;
         upgradeGuiId = Properties.DefaultUpgradeShopGui;
         arenaByName.put(arenaName, this);
@@ -248,6 +250,8 @@ public class Arena implements IArena {
             scoreboard.kill();
         }
         scoreboards.clear();
+        
+        playersWithResourcePack.clear();
 
         IronGolemLogic.cleanupAllForArena(arenaName);
         SilverfishLogic.cleanupAllForArena(this);
@@ -281,6 +285,7 @@ public class Arena implements IArena {
         if (arenaBossBar != null) { arenaBossBar.removeAll(); arenaBossBar.setVisible(false); }
         for (NScoreboard sb : scoreboards.values()) sb.kill();
         scoreboards.clear();
+        playersWithResourcePack.clear();
         for (BukkitTask task : new ArrayList<>(dragonTasks.values())) if (!task.isCancelled()) task.cancel();
         dragonTasks.clear();
         for (EnderDragon dragon : new ArrayList<>(teamDragons.values())) if (dragon != null && dragon.isValid()) dragon.remove();
@@ -487,6 +492,7 @@ public class Arena implements IArena {
         player.setAllowFlight(false);
         player.getActivePotionEffects().forEach(e -> player.removePotionEffect(e.getType()));
         player.setBedSpawnLocation(lobby, true);
+        playersWithResourcePack.remove(player.getUniqueId());
         if (spectatorsList.contains(player)) {
             spectatorsList.remove(player);
             for (Player p : Bukkit.getOnlinePlayers()) {
@@ -567,15 +573,15 @@ public class Arena implements IArena {
                 int time = respawnTime;
                 @Override
                 public void run() {
-                    if (isPlayerInArena(player)) {
-                        player.sendTitle(ChatColor.RED + "" + time, ChatColor.YELLOW + "to respawn", 0, 20, 0);
-                        time--;
-                        if (time == 0) {
-                            player.sendTitle(ChatColor.GREEN + "Respawned", "", 0, 20, 0);
-                            respawnPlayer(player);
-                            cancel();
-                        }
-                    } else {
+                    if (gameStatus != GameStatus.playing || !isPlayerInArena(player)) {
+                        cancel();
+                        return;
+                    }
+                    player.sendTitle(ChatColor.RED + "" + time, ChatColor.YELLOW + "to respawn", 0, 20, 0);
+                    time--;
+                    if (time == 0) {
+                        player.sendTitle(ChatColor.GREEN + "Respawned", "", 0, 20, 0);
+                        respawnPlayer(player);
                         cancel();
                     }
                 }
@@ -933,13 +939,31 @@ public class Arena implements IArena {
     public String getResourcePackUrl() { return resourcePackUrl; }
 
     @Override
-    public void setResourcePackUrl(String url) { this.resourcePackUrl = url; }
+    public void setResourcePackUrl(String url) {
+        if (!java.util.Objects.equals(this.resourcePackUrl, url)) {
+            this.resourcePackUrl = url;
+            // Clear tracking and resend to all online players when URL changes
+            playersWithResourcePack.clear();
+            resendResourcePackToAll();
+        } else {
+            this.resourcePackUrl = url;
+        }
+    }
 
     @Override
     public String getResourcePackHash() { return resourcePackHash; }
 
     @Override
-    public void setResourcePackHash(String hash) { this.resourcePackHash = hash; }
+    public void setResourcePackHash(String hash) {
+        if (!java.util.Objects.equals(this.resourcePackHash, hash)) {
+            this.resourcePackHash = hash;
+            // Clear tracking and resend to all online players when hash changes
+            playersWithResourcePack.clear();
+            resendResourcePackToAll();
+        } else {
+            this.resourcePackHash = hash;
+        }
+    }
 
     @Override
     public String getShopGuiId() { return shopGuiId; }
@@ -1219,10 +1243,28 @@ public class Arena implements IArena {
 
     private void sendResourcePack(Player player) {
         if (resourcePackUrl == null || resourcePackUrl.isEmpty()) return;
+
+        if (playersWithResourcePack.contains(player.getUniqueId())) {
+            return;
+        }
+        
         if (resourcePackHash != null && !resourcePackHash.isEmpty()) {
             player.setResourcePack(resourcePackUrl, resourcePackHash);
         } else {
             player.setResourcePack(resourcePackUrl);
+        }
+        
+        playersWithResourcePack.add(player.getUniqueId());
+    }
+
+    private void resendResourcePackToAll() {
+        if (resourcePackUrl == null || resourcePackUrl.isEmpty()) return;
+        
+        for (UUID uuid : players.keySet()) {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null && p.isOnline()) {
+                sendResourcePack(p);
+            }
         }
     }
 
@@ -1575,6 +1617,16 @@ public class Arena implements IArena {
         if (gamePhases != null && gamePhases.getCurrentPhase() != null) {
             gamePhases.getCurrentPhase().cancel();
         }
+        
+        // Cancel all respawn tasks when game ends
+        for (GamePlayer gp : players.values()) {
+            if (gp != null) gp.cancelRespawnTask();
+        }
+        
+        // Cleanup all golems and silverfish when game ends
+        IronGolemLogic.cleanupAllForArena(arenaName);
+        SilverfishLogic.cleanupAllForArena(this);
+        
         for (Generator generator : generators) generator.stop();
         for (Team team : teams.values()) {
             if (team.getGenerator() != null) team.getGenerator().stop();

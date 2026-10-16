@@ -462,6 +462,88 @@ public class ArenaGameplayEvents implements Listener {
     }
 
     @EventHandler
+    public void onSilverfishFriendlyFire(EntityDamageByEntityEvent e) {
+        if (!(e.getEntity() instanceof org.bukkit.entity.Silverfish sf)) return;
+        if (!SilverfishLogic.activeSilverfish.contains(sf.getUniqueId())) return;
+        
+        String sfKey = SilverfishLogic.getSilverfishKey(sf);
+        if (sfKey == null) return;
+        
+        int colon = sfKey.indexOf(':');
+        if (colon < 0) return;
+        
+        String arenaName = sfKey.substring(0, colon);
+        String teamName = sfKey.substring(colon + 1);
+        IArena arena = Arena.arenaByName.get(arenaName);
+        if (arena == null) return;
+        
+        Team sfTeam = arena.getTeam(teamName);
+        if (sfTeam == null) return;
+
+        Player attacker = null;
+        if (e.getDamager() instanceof Player p) {
+            attacker = p;
+        } else if (e.getDamager() instanceof Projectile proj && proj.getShooter() instanceof Player p) {
+            attacker = p;
+        }
+        
+        if (attacker == null) return;
+
+        String ownerUuid = SilverfishLogic.getSfOwner(sf);
+        if (ownerUuid != null && attacker.getUniqueId().toString().equals(ownerUuid)) {
+            e.setCancelled(true);
+            return;
+        }
+
+        Team attackerTeam = arena.getTeam(attacker);
+        if (attackerTeam != null && attackerTeam.equals(sfTeam)) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDamageGolem(EntityDamageByEntityEvent e) {
+        if (!(e.getEntity() instanceof org.bukkit.entity.IronGolem golem)) return;
+        String golemKey = IronGolemLogic.getGolemKey(golem);
+        if (golemKey == null) return;
+        
+        int colon = golemKey.indexOf(':');
+        if (colon < 0) return;
+        
+        String arenaName = golemKey.substring(0, colon);
+        String teamName = golemKey.substring(colon + 1);
+        IArena arena = Arena.arenaByName.get(arenaName);
+        if (arena == null) return;
+        
+        Team golemTeam = arena.getTeam(teamName);
+        if (golemTeam == null) return;
+        
+        // Extract attacker from damager
+        Player attacker = null;
+        if (e.getDamager() instanceof Player p) {
+            attacker = p;
+        } else if (e.getDamager() instanceof Projectile proj && proj.getShooter() instanceof Player p) {
+            attacker = p;
+        }
+        
+        if (attacker == null) return;
+        
+        // Priority 1: Cancel if attacker is the owner
+        String ownerUuid = golem.getPersistentDataContainer().get(
+                IronGolemLogic.GOLEM_OWNER_KEY, PersistentDataType.STRING);
+        if (ownerUuid != null && attacker.getUniqueId().toString().equals(ownerUuid)) {
+            e.setCancelled(true);
+            return;
+        }
+        
+        // Priority 2: Cancel if attacker is on same team
+        Team attackerTeam = arena.getTeam(attacker);
+        if (attackerTeam != null && attackerTeam.equals(golemTeam)) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
     public void onGolemDeath(EntityDeathEvent e) {
         if (!(e.getEntity() instanceof org.bukkit.entity.IronGolem golem)) return;
         if (IronGolemLogic.getGolemKey(golem) == null) return;
@@ -512,6 +594,13 @@ public class ArenaGameplayEvents implements Listener {
             e.setCancelled(true);
             return;
         }
+
+        String ownerUuid = SilverfishLogic.getSfOwner(e.getEntity());
+        if (ownerUuid != null && target.getUniqueId().toString().equals(ownerUuid)) {
+            e.setCancelled(true);
+            return;
+        }
+
         Team sfTeam = arena.getTeam(teamName);
         Team targetTeam = arena.getTeam(target);
         if (sfTeam == null || targetTeam == null || sfTeam.equals(targetTeam)) {
@@ -697,6 +786,13 @@ public class ArenaGameplayEvents implements Listener {
     }
 
     @EventHandler
+    public void onSilverfishBlockBreak(EntityChangeBlockEvent e) {
+        if (!(e.getEntity() instanceof org.bukkit.entity.Silverfish)) return;
+        if (!SilverfishLogic.activeSilverfish.contains(e.getEntity().getUniqueId())) return;
+        e.setCancelled(true);
+    }
+
+    @EventHandler
     public void onDragonFireballExplode(EntityExplodeEvent e) {
         if (!(e.getEntity() instanceof org.bukkit.entity.DragonFireball)) return;
         e.blockList().removeIf(block ->
@@ -753,12 +849,17 @@ public class ArenaGameplayEvents implements Listener {
             }
             case IRON_GOLEM, SILVERFISH -> {
                 e.setCancelled(true);
-                customItem.getEvent().perform(p, arena);
-                consumeOneItem(p);
+                boolean success = customItem.getEvent().perform(p, arena);
+                if (success) {
+                    consumeOneItem(p);
+                }
             }
             case PORTABLE_TOWER -> {
                 e.setCancelled(true);
-                customItem.getEvent().perform(p, arena);
+                boolean success = customItem.getEvent().perform(p, arena);
+                if (success) {
+                    // PortableTowerLogic manually consumes the item, so don't consume again
+                }
             }
         }
     }

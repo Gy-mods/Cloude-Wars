@@ -7,7 +7,8 @@ import org.bukkit.entity.Player;
 
 public class NoneLogic implements CustomLogic {
     @Override
-    public void perform(Player player, IArena arena) {
+    public boolean perform(Player player, IArena arena) {
+        return true; // No-op logic, always succeeds
     }
 
     @Override

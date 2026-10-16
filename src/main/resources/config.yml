@@ -27,6 +27,7 @@ DefaultGamerules:
   AllowPrivateChat: true
   AllowTeamDamage: false
   MakeSwordsPermanent: false
+  AllowMultipleGolems: false
 
 # ----- Language -----------------------------------
 # Supported: en (English), pl (Polish), de (German), es (Spanish), fr (French), ru (Russian)
@@ -85,6 +86,10 @@ DragonIndestructibleBlocks:
   - BARRIER
   - END_PORTAL_FRAME
   - IRON_BARS
+
+# ----- Iron Golem Settings ------------------------
+# How long (seconds) iron golems stay alive before despawning
+IronGolemLifetime: 120
 
 # ----- Upgrade Prices -----------------------------
 # Cost to unlock each level (index 0 = level 1→2, index 1 = level 2→3, etc.)

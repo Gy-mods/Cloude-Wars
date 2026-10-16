@@ -13,6 +13,7 @@ public class Gamerules {
     public Boolean AllowPrivateChat;
     public Boolean AllowTeamDamage;
     public Boolean MakeSwordsPermanent;
+    public Boolean AllowMultipleGolems;
 
     public Gamerules() {
         HashMap<String, Boolean> gamerules = Properties.DefaultGamerules;
@@ -24,6 +25,7 @@ public class Gamerules {
         AllowPrivateChat = gamerules.get("AllowPrivateChat");
         AllowTeamDamage = gamerules.get("AllowTeamDamage");
         MakeSwordsPermanent = gamerules.get("MakeSwordsPermanent");
+        AllowMultipleGolems = gamerules.get("AllowMultipleGolems");
     }
 
     public void setGamerule(String name, Boolean value) {
@@ -36,6 +38,7 @@ public class Gamerules {
             case "AllowPrivateChat" -> AllowPrivateChat = value;
             case "AllowTeamDamage" -> AllowTeamDamage = value;
             case "MakeSwordsPermanent" -> MakeSwordsPermanent = value;
+            case "AllowMultipleGolems" -> AllowMultipleGolems = value;
         }
     }
     public String toJson() {
@@ -48,6 +51,7 @@ public class Gamerules {
                 ", \"AllowPrivateChat\":" + AllowPrivateChat +
                 ", \"AllowTeamDamage\":" + AllowTeamDamage +
                 ", \"MakeSwordsPermanent\":" + MakeSwordsPermanent +
+                ", \"AllowMultipleGolems\":" + AllowMultipleGolems +
                 '}';
     }
 }

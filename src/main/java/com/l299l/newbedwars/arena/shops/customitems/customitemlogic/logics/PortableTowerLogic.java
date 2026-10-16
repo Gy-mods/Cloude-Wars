@@ -17,9 +17,9 @@ import org.bukkit.inventory.ItemStack;
 public class PortableTowerLogic implements CustomLogic {
 
     @Override
-    public void perform(Player player, IArena arena) {
+    public boolean perform(Player player, IArena arena) {
         Team team = arena.getTeam(player);
-        if (team == null) return;
+        if (team == null) return false;
 
         Material wool = BridgeEggLogic.getWoolFromColor(team.getColor());
         org.bukkit.World world = arena.getArenaWorld();
@@ -43,7 +43,7 @@ public class PortableTowerLogic implements CustomLogic {
                         Location check = new Location(world, cx + dx, floorY + dy, cz + dz);
                         if (arenaImpl.isInTeamBase(check) || arenaImpl.isNearDiamondOrEmeraldGenerator(check)) {
                             NewBedwars.plugin.getMessages().send(player, "PortableTowerProtectedArea");
-                            return; // item NOT consumed — caller skips consumeOneItem for PORTABLE_TOWER
+                            return false; // blocked - item NOT consumed
                         }
                     }
                 }
@@ -104,6 +104,8 @@ public class PortableTowerLogic implements CustomLogic {
                 }
             }
         }
+        
+        return true; // Tower successfully placed
     }
 
     private BlockFace getCardinalDirection(float yaw) {

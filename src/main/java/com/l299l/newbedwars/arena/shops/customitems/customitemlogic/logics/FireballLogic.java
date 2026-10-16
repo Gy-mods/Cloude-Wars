@@ -9,12 +9,13 @@ import org.bukkit.entity.Player;
 public class FireballLogic implements CustomLogic {
 
     @Override
-    public void perform(Player player, IArena arena) {
+    public boolean perform(Player player, IArena arena) {
         Fireball fireball = player.launchProjectile(Fireball.class);
         fireball.setDirection(player.getEyeLocation().getDirection().multiply(2));
         fireball.setYield(2.0f);
         fireball.setIsIncendiary(false);
         fireball.setShooter(player);
+        return true;
     }
 
     @Override

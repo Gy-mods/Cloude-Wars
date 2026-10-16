@@ -7,8 +7,8 @@ import org.bukkit.entity.Player;
 
 public class PotionLogic implements CustomLogic {
     @Override
-    public void perform(Player player, IArena arena) {
-
+    public boolean perform(Player player, IArena arena) {
+        return true; // Potion logic handled by shop GUI directly
     }
 
     @Override

@@ -27,7 +27,7 @@ public class SilverfishLogic implements CustomLogic {
     public static final Set<UUID> activeSilverfish = new HashSet<>();
 
     @Override
-    public void perform(Player player, IArena arena) {
+    public boolean perform(Player player, IArena arena) {
         Team team = arena.getTeam(player);
         for (int i = 0; i < SWARM_SIZE; i++) {
             Silverfish sf = (Silverfish) player.getLocation().getWorld()
@@ -51,6 +51,7 @@ public class SilverfishLogic implements CustomLogic {
                 }
             }.runTaskLater(NewBedwars.plugin, DESPAWN_TICKS);
         }
+        return true; // Silverfish swarm successfully spawned
     }
 
     public static String getSilverfishKey(org.bukkit.entity.Entity entity) {

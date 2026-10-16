@@ -5,9 +5,21 @@ All notable changes to NewBedwars are documented here.
 ## [2.4-beta] - Coming soon
 
 ### Added
-- 
+- **Configurable iron golem lifetime** - Iron golems now despawn after a configurable time period (default: 120 seconds, configurable via `IronGolemLifetime` in `config.yml`)
+- **Iron golem spawn limit per team** - Teams can now only have one active iron golem at a time by default (configurable via `AllowMultipleGolems` gamerule, default: false)
 
 ### Fixed
+- **Silverfish friendly-fire** - Silverfish no longer attack or take damage from their owner or teammates
+- **Silverfish block breaking** - Silverfish can no longer break blocks in arenas
+- **Silverfish price rebalanced** - Changed from 3 gold to 1 emerald (was too overpowered at original price)
+- **Iron golem friendly-fire** - Team members can no longer damage their own team's iron golem
+- **Iron golems persisting after game end** - Iron golems now properly despawn when the game ends
+- **Portable tower item consumption bug** - Portable tower item is no longer consumed when placement is blocked in a protected area
+- **Respawn after game ends** - Players with pending respawn timers no longer respawn after the game has ended
+- **Resource pack reload on death** - Resource pack no longer reloads every time a player dies and becomes a spectator (massive UX improvement)
+- **Resource pack reload on respawn** - Resource pack is not resent when players respawn from spectator mode
+- **Resource pack tracking cleared on leave** - Resource pack tracking is properly cleaned up when players leave an arena
+- **Resource pack tracking cleared on restart** - Resource pack tracking is properly reset when arenas restart
 - **`/bw arena create` command error** while trying to create with -sche with no installed WordEdit
 - **Setup gui** - now it's not longer possible to close it without choosing setup mode
 

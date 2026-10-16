@@ -64,7 +64,7 @@ public class CustomItemManager {
         glowFlags.add(ItemFlag.HIDE_ENCHANTS);
         createCustomItem("IronGolem", Material.IRON_INGOT, 4, PriceType.EMERALD, 1, new IronGolemLogic(), OnBuyEvent.GIVE_ITEM,
                 new HashMap<Enchantment, Integer>() {{put(VersionCompat.GLOW_ENCHANT, 1);}}, glowFlags);
-        createCustomItem("Silverfish", Material.SPIDER_EYE, 3, PriceType.GOLD, 1, new SilverfishLogic(), OnBuyEvent.GIVE_ITEM,
+        createCustomItem("Silverfish", Material.SPIDER_EYE, 1, PriceType.EMERALD, 1, new SilverfishLogic(), OnBuyEvent.GIVE_ITEM,
                 new HashMap<Enchantment, Integer>() {{put(VersionCompat.GLOW_ENCHANT, 1);}}, glowFlags);
         createCustomItem("PortableTower", Material.BRICKS, 4, PriceType.EMERALD, 1, new PortableTowerLogic(), OnBuyEvent.GIVE_ITEM);
         createCustomItem("Fill", Material.BLACK_STAINED_GLASS_PANE, 0, PriceType.NONE, 1, new NoneLogic(), OnBuyEvent.CANCEL);

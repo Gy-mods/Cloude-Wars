@@ -20,7 +20,8 @@ public class BridgeEggLogic implements CustomLogic {
     public static final HashMap<UUID, Material> pendingBridgeEggs = new HashMap<>();
 
     @Override
-    public void perform(Player player, IArena arena) {
+    public boolean perform(Player player, IArena arena) {
+        return true; // Bridge egg logic handled by projectile launch
     }
 
     public static void startTracking(UUID eggId, Material woolType, IArena arena, Egg egg) {

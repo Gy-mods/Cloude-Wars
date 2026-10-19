@@ -21,7 +21,10 @@ All notable changes to NewBedwars are documented here.
 - **Resource pack tracking cleared on leave** - Resource pack tracking is properly cleaned up when players leave an arena
 - **Resource pack tracking cleared on restart** - Resource pack tracking is properly reset when arenas restart
 - **`/bw arena create` command error** while trying to create with -sche with no installed WordEdit
-- **Setup gui** - now it's not longer possible to close it without choosing setup mode
+- **Setup gui** - now it's no longer possible to close it without choosing setup mode
+- **Arena disablement error** - Fixed issue with disabling arena while game in waiting and reloading status
+- **Plugin error while stopping server** - Fixed issue when stopping server while some arenas was still active
+- **Min players** check on join is now correctly processed
 
 ---
 

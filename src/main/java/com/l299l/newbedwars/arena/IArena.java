@@ -49,7 +49,6 @@ public interface IArena {
     void setPhaseTime(int time);
     Boolean isEnabled();
     Boolean canBeEnabled();
-    Boolean canBeDisabled();
     GameStatus status();
     Integer getMinPlayers();
     Gamerules getGamerules();

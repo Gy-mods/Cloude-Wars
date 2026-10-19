@@ -2,6 +2,7 @@ package com.l299l.newbedwars.commands.bedwars.admin.manageArena;
 
 import com.l299l.newbedwars.NewBedwars;
 import com.l299l.newbedwars.arena.Arena;
+import com.l299l.newbedwars.arena.GameStatus;
 import com.l299l.newbedwars.arena.IArena;
 import com.l299l.newbedwars.commands.bedwars.SubCommand;
 import com.l299l.newbedwars.config.Messages;
@@ -47,7 +48,7 @@ public class DisableArenaCommand extends SubCommand {
                     }});
                     return;
                 }
-                if (!arena.canBeDisabled()) {
+                if (!(arena.status() == GameStatus.waiting)) {
                     msg.send(player, "ArenaCantBeDisabled", new HashMap<>() {{
                         put("/arenaname/", arena.getArenaName());
                     }});

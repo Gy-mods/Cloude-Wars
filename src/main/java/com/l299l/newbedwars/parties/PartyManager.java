@@ -14,7 +14,6 @@ import java.util.UUID;
 
 public class PartyManager {
     private static final int INVITE_EXPIRY_SECONDS = 60;
-
     private final Plugin plugin;
     private final Messages messages;
     private final Map<UUID, Party> playerToParty = new HashMap<>();

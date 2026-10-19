@@ -49,6 +49,7 @@ public class Arena implements IArena {
 
     public static void updateTablist(Player player) {
         if (!Properties.TablistIsolationEnabled) return;
+        if (!NewBedwars.plugin.isEnabled()) return;
         IArena playerArena = arenaByWorld.get(player.getWorld());
         for (Player other : Bukkit.getOnlinePlayers()) {
             if (other.equals(player)) continue;
@@ -393,8 +394,6 @@ public class Arena implements IArena {
         if (players.containsKey(player.getUniqueId())) return false;
         if (players.size() > teams.size() * maxInTeam) {
             return false;
-        } else if (players.size() + 1 >= minPlayers && gameStatus == GameStatus.waiting) {
-            checkIfCanStart();
         }
         Team team = joinPlayerToTeam(player);
         if (team == null) {
@@ -406,6 +405,7 @@ public class Arena implements IArena {
             put("/players/", Integer.toString(players.size()));
             put("/maxplayers/", Integer.toString(teams.size() * maxInTeam));
         }});
+        checkIfCanStart();
         return true;
     }
 
@@ -672,15 +672,15 @@ public class Arena implements IArena {
     }
 
     public void disable() {
-        if (gameStatus == GameStatus.waiting) {
-            for (UUID p : players.keySet()) {
-                Player player = Bukkit.getServer().getPlayer(p);
-                if (player == null) {
-                    continue;
-                }
-                leave(player);
-                NewBedwars.plugin.getMessages().send(player, "KickedFromArena");
+        if (gameStatus != GameStatus.waiting) return;
+        List<UUID> playersList = new ArrayList<>(players.keySet());
+        for (UUID p : playersList) {
+            Player player = Bukkit.getServer().getPlayer(p);
+            if (player == null) {
+                continue;
             }
+            leave(player);
+            NewBedwars.plugin.getMessages().send(player, "KickedFromArena");
         }
         enabled = false;
         setup = Setup.NO_SETUP;
@@ -771,11 +771,6 @@ public class Arena implements IArena {
             }
         }
         return canBeEnabled;
-    }
-
-    @Override
-    public Boolean canBeDisabled() {
-        return gameStatus == GameStatus.restarting || gameStatus == GameStatus.waiting;
     }
 
     @Override

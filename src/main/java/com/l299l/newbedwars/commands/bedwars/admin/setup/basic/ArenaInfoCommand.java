@@ -1,15 +1,20 @@
 package com.l299l.newbedwars.commands.bedwars.admin.setup.basic;
 
 import com.l299l.newbedwars.arena.IArena;
+import com.l299l.newbedwars.arena.gamerules.Gamerules;
 import com.l299l.newbedwars.arena.generators.Generator;
 import com.l299l.newbedwars.arena.generators.GeneratorType;
+import com.l299l.newbedwars.arena.generators.leveling.GeneratorLeveling;
+import com.l299l.newbedwars.arena.setup.Setup;
 import com.l299l.newbedwars.arena.team.Team;
 import com.l299l.newbedwars.commands.bedwars.SubCommand;
+import com.l299l.newbedwars.gui.configuration.setup.guis.ArenaInfoGUI;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ArenaInfoCommand extends SubCommand {
@@ -25,7 +30,7 @@ public class ArenaInfoCommand extends SubCommand {
 
     @Override
     public String getSyntax() {
-        return "/bw arena";
+        return "/bw arena [gui]";
     }
 
     @Override
@@ -35,6 +40,13 @@ public class ArenaInfoCommand extends SubCommand {
 
     @Override
     public void perform(Player player, String[] args, IArena arena) {
+        if (args.length > 1 && args[1].equalsIgnoreCase("gui")) {
+            player.openInventory(new ArenaInfoGUI(arena).getInventory());
+            return;
+        }
+
+        boolean isAdvanced = arena.getSetupMode() == Setup.ADVANCED_SETUP;
+
         String line = ChatColor.AQUA + "=-=-=-=-=-=- " + ChatColor.WHITE + "ArenaInfo"
                 + ChatColor.AQUA + " =-=-=-=-=-=-";
         player.sendMessage(line);
@@ -75,6 +87,10 @@ public class ArenaInfoCommand extends SubCommand {
                     + (team.isBasePosSet()
                     ? locStr(team.getTeamBasePos1()) + " → " + locStr(team.getTeamBasePos2())
                     : ""));
+            if (isAdvanced) {
+                player.sendMessage("  " + tick(team.isAccessoriesSet())   + " Accessories "
+                        + (team.isAccessoriesSet() ? locStr(team.getTeamAccessories()) : ""));
+            }
         }
 
         player.sendMessage("");
@@ -87,6 +103,43 @@ public class ArenaInfoCommand extends SubCommand {
         player.sendMessage(ChatColor.AQUA + "Generators: "
                 + ChatColor.AQUA + diamond + " diamond  "
                 + ChatColor.GREEN + emerald + " emerald");
+
+        if (isAdvanced) {
+            player.sendMessage("");
+            player.sendMessage(ChatColor.AQUA + "Advanced Settings:");
+            
+            // Gamerules
+            Gamerules gamerules = arena.getGamerules();
+            player.sendMessage("  " + ChatColor.GREEN + "Gamerules:");
+            player.sendMessage("    RandomTeams: " + gameruleStr(gamerules.RandomTeams));
+            player.sendMessage("    AllowParties: " + gameruleStr(gamerules.AllowParties));
+            player.sendMessage("    AllowSpectators: " + gameruleStr(gamerules.AllowSpectators));
+            player.sendMessage("    AllowTeamChat: " + gameruleStr(gamerules.AllowTeamChat));
+            player.sendMessage("    AllowGlobalChat: " + gameruleStr(gamerules.AllowGlobalChat));
+            player.sendMessage("    AllowPrivateChat: " + gameruleStr(gamerules.AllowPrivateChat));
+            player.sendMessage("    AllowTeamDamage: " + gameruleStr(gamerules.AllowTeamDamage));
+            player.sendMessage("    MakeSwordsPermanent: " + gameruleStr(gamerules.MakeSwordsPermanent));
+            player.sendMessage("    AllowMultipleGolems: " + gameruleStr(gamerules.AllowMultipleGolems));
+            
+            // Resource pack
+            player.sendMessage("  " + field("Resource pack") + (arena.getResourcePackUrl() != null
+                    ? ChatColor.WHITE + arena.getResourcePackUrl()
+                    : missing("not set")));
+            
+            // GUI IDs
+            player.sendMessage("  " + field("Shop GUI") + (arena.getShopGuiId() != null
+                    ? ChatColor.WHITE + arena.getShopGuiId()
+                    : missing("not set")));
+            player.sendMessage("  " + field("Upgrade GUI") + (arena.getUpgradeGuiId() != null
+                    ? ChatColor.WHITE + arena.getUpgradeGuiId()
+                    : missing("not set")));
+            
+            // Generator leveling
+            GeneratorLeveling leveling = arena.getGeneratorsLeveling();
+            player.sendMessage("  " + field("Generator leveling") + (leveling != null
+                    ? ChatColor.WHITE + leveling.getId()
+                    : missing("not set")));
+        }
 
         player.sendMessage("");
         boolean canEnable = arena.canBeEnabled();
@@ -118,8 +171,16 @@ public class ArenaInfoCommand extends SubCommand {
         return ChatColor.WHITE + String.valueOf(loc.getBlockX()) + " " + loc.getBlockY() + " " + loc.getBlockZ();
     }
 
+    private static String gameruleStr(Boolean value) {
+        if (value == null) return ChatColor.RED + "not set";
+        return value ? ChatColor.GREEN + "true" : ChatColor.RED + "false";
+    }
+
     @Override
     public List<String> getSubcommandArguments(Player player, String[] args) {
+        if (args.length == 2) {
+            return List.of("gui");
+        }
         return null;
     }
 }

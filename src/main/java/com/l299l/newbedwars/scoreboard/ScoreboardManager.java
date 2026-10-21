@@ -105,7 +105,7 @@ public class ScoreboardManager {
         line = line.replace("/servername/", ChatColor.translateAlternateColorCodes('&', Properties.ServerName));
         if (arena != null) {
             line = line.replace("/map/", arena.getArenaName());
-            line = line.replace("/players/", arena.getPlayers() == null ? "0" : String.valueOf(arena.getPlayers().size()));
+            line = line.replace("/players/", String.valueOf(arena.getActivePlayerCount()));
             line = line.replace("/maxplayers/", arena.getTeams() == null ? "0" : String.valueOf(arena.getMaxInTeam() * arena.getTeams().size()));
             line = line.replace("/minplayers/", String.valueOf(arena.getMinPlayers()));
             line = line.replace("/status/", getInteractiveStatus(arena.status(), arena));

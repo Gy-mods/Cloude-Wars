@@ -116,7 +116,7 @@ public class NewBedwarsExpansion extends PlaceholderExpansion {
                 return gp != null ? String.valueOf(gp.getBedsBroken()) : "0";
             }
             case "players":
-                return arena != null ? String.valueOf(arena.getPlayers().size()) : "0";
+                return arena != null ? String.valueOf(arena.getActivePlayerCount()) : "0";
             case "max_players":
                 return arena != null ? String.valueOf(arena.getTeams().size() * arena.getMaxInTeam()) : "0";
             case "is_spectator":
@@ -144,7 +144,7 @@ public class NewBedwarsExpansion extends PlaceholderExpansion {
                 if (arena == null) return "";
                 return switch (suffix) {
                     case "_status"      -> arena.status().name().toLowerCase();
-                    case "_players"     -> String.valueOf(arena.getPlayers().size());
+                    case "_players"     -> String.valueOf(arena.getActivePlayerCount());
                     case "_max_players" -> String.valueOf(arena.getTeams().size() * arena.getMaxInTeam());
                     case "_phase"       -> arena.getCurrentGamePhase();
                     default             -> null;

@@ -50,6 +50,7 @@ hs_err_pid*
 CLAUDE.md
 latest.log
 .claude/
+.junie/
 plan.md
 graphify-out/
 /TODO.txt

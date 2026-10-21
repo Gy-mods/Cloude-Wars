@@ -22,6 +22,7 @@ public interface IArena {
     void start();
     void setArenaStarting();
     void stop();
+    void forceShutdown();
     boolean rollback();
     Integer getGameTime();
     void upgradeGenerators(GeneratorType type, Integer level);
@@ -31,6 +32,7 @@ public interface IArena {
     void leave(Player player);
     Boolean isPlayerInArena(Player player);
     Set<UUID> getPlayers();
+    int getActivePlayerCount();
     GamePlayer getPlayer(UUID player);
     void killPlayer(Player player);
     void cancelStart();
@@ -79,8 +81,6 @@ public interface IArena {
     void setWaitingSpawn(Location waitingSpawn);
     void setWaitingTime(Integer time);
     void setRespawnTime(Integer time);
-    void setSpecialGamerules(HashMap<String, Boolean> gamerules);
-    void setSpecialGamerule(String gamerule, Boolean value);
     Location getWaitingSpawn();
     Integer getWaitingTime();
     Location getWaitingPos1();

@@ -36,10 +36,10 @@ public class BasicConfigurationGUI extends BasicGUI {
                 List<String> newlore = Arrays.asList(ulore);
                 inv.setItem(i, getGuiManager().createItem(getMsg().getMsg(getPlayer(), "NormalSetup"), Material.COMPASS, newlore, true));
             }else if(i == 13) {
-                inv.setItem(i, getGuiManager().createItem(
-                        "§8§m" + getMsg().getMsg(getPlayer(), "AdvancedSetup"),
-                        Material.BARRIER,
-                        Collections.singletonList("§c§lNot yet implemented"), false));
+                String aLore = getMsg().getMsg(getPlayer(), "AdvancedSetupLore");
+                String[] aLoreArr = aLore.split(";");
+                List<String> aLoreList = Arrays.asList(aLoreArr);
+                inv.setItem(i, getGuiManager().createItem(getMsg().getMsg(getPlayer(), "AdvancedSetup"), Material.NETHER_STAR, aLoreList, true));
             }else if(i == 15) {
                 inv.setItem(i, getGuiManager().createItem(
                         "§8§m" + getMsg().getMsg(getPlayer(), "AutomaticSetup"),

@@ -34,8 +34,12 @@ public class BasicConfigurationGuiSettings implements Listener {
                     arena.changeSetup(Setup.NORMAL_SETUP);
                     msg.sendConf(player, Setup.NORMAL_SETUP);
                     player.closeInventory();
-                } else if (e.getSlot() == 13 || e.getSlot() == 15) {
-                    // Advanced and Automatic setup are not yet implemented
+                } else if (e.getSlot() == 13) {
+                    arena.changeSetup(Setup.ADVANCED_SETUP);
+                    msg.sendConf(player, Setup.ADVANCED_SETUP);
+                    player.closeInventory();
+                } else if (e.getSlot() == 15) {
+                    // Automatic setup is not yet implemented
                     player.sendMessage(org.bukkit.ChatColor.RED + "This setup mode is not yet implemented.");
                 }
                 e.setCancelled(true);

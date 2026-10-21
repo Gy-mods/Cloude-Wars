@@ -62,7 +62,7 @@ public class CreateTeamCommand extends SubCommand {
     public List<String> getSubcommandArguments(Player player, String[] args) {
         if(args.length == 2) {
             return new ArrayList<>(Arrays.asList("WHITE", "LIGHT_GRAY", "GRAY", "BLACK", "RED", "ORANGE", "YELLOW", "LIME",
-                    "GREEN", "CYAN", "LIGHT_BLUE", "BLUE", "PURPLE"));
+                    "GREEN", "CYAN", "LIGHT_BLUE", "BLUE", "PURPLE", "PINK"));
         }
         return null;
     }
@@ -79,6 +79,7 @@ public class CreateTeamCommand extends SubCommand {
             case "LIGHT_BLUE" -> c = ChatColor.AQUA;
             case "BLUE" -> c = ChatColor.DARK_BLUE;
             case "PURPLE" -> c = ChatColor.DARK_PURPLE;
+            case "GREEN" -> c = ChatColor.DARK_GREEN;
             default -> c = ChatColor.valueOf(color);
         }
         return c;

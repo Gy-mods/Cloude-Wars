@@ -37,7 +37,7 @@ public class SetupHelpCommand extends SubCommand {
 
     @Override
     public String getExample() {
-        return "/bw setupHelp specialGamerule";
+        return "/bw setupHelp gamerule";
     }
 
     @Override

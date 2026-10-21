@@ -2,13 +2,20 @@
 
 All notable changes to NewBedwars are documented here.
 
-## [2.4-beta] - Coming soon
+## [2.4-beta] - 22.10.2026
 
 ### Added
 - **Configurable iron golem lifetime** - Iron golems now despawn after a configurable time period (default: 120 seconds, configurable via `IronGolemLifetime` in `config.yml`)
 - **Iron golem spawn limit per team** - Teams can now only have one active iron golem at a time by default (configurable via `AllowMultipleGolems` gamerule, default: false)
+- **Spectate selection GUI for `/bw spectate`** - Typing `/bw spectate` without an arena name now opens a GUI showing all enabled arenas, including those that cannot be spectated (grayed out)
+- **Arena info GUI** - `/bw arena gui` shows a visual multi-page GUI with arena settings, team details, and generator counts while in setup mode
+- **Advanced setup mode** - New setup mode that provides access to gamerules, resource packs, custom GUIs, and generator leveling configuration
+- **`/bw setupMode` command** - Reopens the setup mode selection GUI at any time during setup to switch between normal and advanced modes
+- **Team accessories location** - `/bw teamAccessories <team> [<x> <y> <z>]` sets a team-specific accessories location (available in advanced setup) (For now does nothing)
 
 ### Fixed
+- **Wrong world generator on 26.1+** - Fixed void world generator on the newest mc versions
+- **Leave message during gameplay** - Leaving an arena during active gameplay now shows a different message than leaving from the waiting lobby
 - **Silverfish friendly-fire** - Silverfish no longer attack or take damage from their owner or teammates
 - **Silverfish block breaking** - Silverfish can no longer break blocks in arenas
 - **Silverfish price rebalanced** - Changed from 3 gold to 1 emerald (was too overpowered at original price)
@@ -25,6 +32,11 @@ All notable changes to NewBedwars are documented here.
 - **Arena disablement error** - Fixed issue with disabling arena while game in waiting and reloading status
 - **Plugin error while stopping server** - Fixed issue when stopping server while some arenas was still active
 - **Min players** check on join is now correctly processed
+- **Rejoin support in arena selection GUI** - Players can rejoin an arena they left mid-game by clicking it in the `/bw join` GUI
+- **Player count display** - Bossbar, scoreboard, and GUI player counts no longer include players who left but still have rejoin time remaining
+
+### Removed
+- **Special gamerules** - was never actually wired up, so it did nothing
 
 ---
 

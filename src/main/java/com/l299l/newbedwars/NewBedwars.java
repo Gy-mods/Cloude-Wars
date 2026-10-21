@@ -25,11 +25,14 @@ import com.l299l.newbedwars.gui.GuiManager;
 import com.l299l.newbedwars.parties.PartyManager;
 import com.l299l.newbedwars.player.PlayerManager;
 import com.l299l.newbedwars.scoreboard.ScoreboardManager;
+import com.l299l.newbedwars.world.chunkgenerators.VoidGenerator;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -85,12 +88,18 @@ public final class NewBedwars extends JavaPlugin {
         int active = 0;
         for (IArena arena : Arena.arenaByName.values()) {
             if (!arena.getPlayers().isEmpty() || !arena.getSpectators().isEmpty()) active++;
+            else if (!arena.getPlayersOnSetup().isEmpty()) {
+                arena.getPlayersOnSetup().forEach(p -> {
+                    Player pl = Objects.requireNonNull(Bukkit.getPlayer(p));
+                    pl.teleport(getLobbyLocation());
+                    pl.kickPlayer(ChatColor.RED + "Server went down!");});
+            }
         }
         if (active > 0) {
             getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[NewBedwars]: " + active + " arena(s) still active — forcing shutdown...");
         }
         for (IArena arena : new ArrayList<>(Arena.arenaByName.values())) {
-            ((Arena) arena).forceShutdown();
+            arena.forceShutdown();
         }
         LobbyData.save(lobbyLocation);
         if (dataManager != null) dataManager.save();
@@ -176,6 +185,11 @@ public final class NewBedwars extends JavaPlugin {
 
     public HashMap<String, GeneratorLeveling> getGeneratorLeveling() {
         return generatorLeveling;
+    }
+
+    @Override
+    public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
+        return new VoidGenerator();
     }
 
     private void reloadEvents(){

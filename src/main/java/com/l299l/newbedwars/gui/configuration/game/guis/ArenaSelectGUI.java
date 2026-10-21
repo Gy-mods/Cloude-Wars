@@ -21,8 +21,10 @@ import java.util.Map;
 public class ArenaSelectGUI implements InventoryHolder {
     private final Inventory inv;
     private final Map<Integer, IArena> slotToArena = new HashMap<>();
+    private final Player viewer;
 
     public ArenaSelectGUI(Player player) {
+        this.viewer = player;
         List<IArena> arenas = Arena.arenaByName.values().stream()
                 .filter(IArena::isEnabled)
                 .sorted((a, b) -> a.getArenaName().compareToIgnoreCase(b.getArenaName()))
@@ -51,8 +53,10 @@ public class ArenaSelectGUI implements InventoryHolder {
             default       -> { mat = Material.GRAY_WOOL;   statusLabel = ChatColor.GRAY + "Restarting"; }
         }
 
-        int current = arena.getPlayers().size();
+        int current = arena.getActivePlayerCount();
         int max = arena.getTeams().size() * arena.getMaxInTeam();
+
+        boolean canRejoin = arena.isPlayerInArena(viewer) && arena.status() == GameStatus.playing;
 
         ItemStack item = new ItemStack(mat);
         ItemMeta meta = item.getItemMeta();
@@ -62,7 +66,9 @@ public class ArenaSelectGUI implements InventoryHolder {
         lore.add(ChatColor.GRAY + "Players: " + ChatColor.WHITE + current + ChatColor.GRAY + "/" + ChatColor.WHITE + max);
         lore.add(ChatColor.GRAY + "Teams: " + ChatColor.WHITE + arena.getTeams().size());
         lore.add("");
-        if (status == GameStatus.waiting || status == GameStatus.starting) {
+        if (canRejoin) {
+            lore.add(ChatColor.GREEN + "Click to rejoin!");
+        } else if (status == GameStatus.waiting || status == GameStatus.starting) {
             lore.add(ChatColor.GREEN + "Click to join!");
         } else {
             lore.add(ChatColor.RED + "Game already in progress.");

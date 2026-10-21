@@ -5,9 +5,6 @@ import com.l299l.newbedwars.arena.Arena;
 import com.l299l.newbedwars.arena.GameStatus;
 import com.l299l.newbedwars.arena.IArena;
 import com.l299l.newbedwars.arena.shops.TeamShop;
-import com.l299l.newbedwars.parties.Party;
-import com.l299l.newbedwars.parties.PartyManager;
-import com.l299l.newbedwars.gui.configuration.game.guis.ArenaSelectGUI;
 import com.l299l.newbedwars.arena.shops.TeamUpgrades;
 import com.l299l.newbedwars.arena.shops.customitems.CustomItem;
 import com.l299l.newbedwars.arena.shops.customitems.customitemlogic.LogicType;
@@ -45,13 +42,11 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -243,46 +238,6 @@ public class ArenaGameplayEvents implements Listener {
         if (e.getClickedInventory() == null) return;
         Player p = (Player) e.getWhoClicked();
 
-        if (e.getInventory().getHolder() instanceof ArenaSelectGUI gui) {
-            e.setCancelled(true);
-            if (e.getCurrentItem() == null || e.getCurrentItem().getType().isAir()) return;
-            IArena target = gui.getArena(e.getRawSlot());
-            if (target == null) return;
-            p.closeInventory();
-
-            PartyManager pm = NewBedwars.plugin.getPartyManager();
-            Party party = pm.getParty(p);
-            if (party != null && !party.isAdmin(p.getUniqueId())) {
-                Player admin = Bukkit.getPlayer(party.getAdmin());
-                String adminName = admin != null ? admin.getName() : "?";
-                plugin.getMessages().send(p, "PartyOnlyAdminCanJoin", new HashMap<>() {{ put("/player/", adminName); }});
-                return;
-            }
-
-            GameStatus status = target.status();
-            if (status != GameStatus.waiting && status != GameStatus.starting) {
-                plugin.getMessages().send(p, "ArenaRunningError");
-                return;
-            }
-
-            if (party != null && target.getGamerules().AllowParties) {
-                List<Player> members = pm.getOnlineMembers(party);
-                if (members.size() > target.getMaxInTeam()) {
-                    plugin.getMessages().send(p, "PartyTooBig", new HashMap<>() {{ put("/maxteam/", String.valueOf(target.getMaxInTeam())); }});
-                    return;
-                }
-                if (!target.joinParty(members)) {
-                    plugin.getMessages().send(p, "ArenaIsFullError");
-                }
-            } else if (party != null && !target.getGamerules().AllowParties) {
-                plugin.getMessages().send(p, "PartyNotAllowedInArena");
-            } else {
-                if (!target.join(p)) {
-                    plugin.getMessages().send(p, "ArenaIsFullError");
-                }
-            }
-            return;
-        }
 
         if (Arena.arenaByWorld.get(p.getWorld()) != null) {
             IArena arena = Arena.arenaByWorld.get(p.getWorld());

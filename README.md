@@ -223,7 +223,7 @@ NewBedwars will leave beta once stable operation is verified across all supporte
 - [x] More custom items (Iron Golem, Silverfish, etc.)
 - [x] Arena statistics and leaderboards
 - [x] Player profile GUI with stats history
-- [ ] Improved help and `/bw arena` command
+- [ ] Improved help
 - [ ] In-game map voting system
 - [ ] More languages (full support)
 - [ ] Network / BungeeCord / Velocity mode

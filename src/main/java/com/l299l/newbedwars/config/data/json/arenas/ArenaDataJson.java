@@ -18,6 +18,7 @@ import com.l299l.newbedwars.arena.shops.TeamUpgrades;
 import com.l299l.newbedwars.arena.team.Team;
 import com.l299l.newbedwars.config.properties.Properties;
 import com.l299l.newbedwars.utils.JsonUtils;
+import com.l299l.newbedwars.world.chunkgenerators.VoidGenerator;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.WorldCreator;
@@ -48,7 +49,6 @@ public class ArenaDataJson {
             boolean enabled = jsonObject.get("enabled").getAsBoolean();
             List<LinkedTreeMap> teams = gson.fromJson(jsonObject.get("teams"), List.class);
             List<LinkedTreeMap> generators = gson.fromJson(jsonObject.get("generators"), List.class);
-            HashMap<String, Boolean> specialGamerules = gson.fromJson(jsonObject.get("specialGamerules"), HashMap.class);
             String shopGuiId = jsonObject.has("shopGuiId") && !jsonObject.get("shopGuiId").isJsonNull()
                     ? jsonObject.get("shopGuiId").getAsString()
                     : (jsonObject.has("shopGui") && !jsonObject.get("shopGui").isJsonNull()
@@ -62,7 +62,9 @@ public class ArenaDataJson {
             HashMap<String, Boolean> gamerules = gson.fromJson(jsonObject.get("gamerules"), HashMap.class);
 
             if (NewBedwars.plugin.getServer().getWorld(worldName) == null) {
-                NewBedwars.plugin.getServer().createWorld(new WorldCreator(worldName));
+                WorldCreator wc = new WorldCreator(worldName);
+                wc.generator(new VoidGenerator());
+                NewBedwars.plugin.getServer().createWorld(wc);
             }
             Location waitingSpawn = getLocation(gson.fromJson(jsonObject.get("waitingSpawn"), Object.class));
             Location waitingPos1 = getLocation(gson.fromJson(jsonObject.get("waitingPos1"), Object.class));
@@ -73,7 +75,6 @@ public class ArenaDataJson {
             arena.setWaitingTime(waitingTime);
             arena.setRespawnTime(respawnTime);
             arena.changeSetup(setup);
-            arena.setSpecialGamerules(specialGamerules);
             if (enabled) {
                 arena.enable();
             } else {

@@ -1,4 +1,4 @@
-package com.l299l.newbedwars.commands.bedwars.admin.setup.normal;
+package com.l299l.newbedwars.commands.bedwars.admin.setup.advenced;
 
 import com.l299l.newbedwars.NewBedwars;
 import com.l299l.newbedwars.arena.IArena;

@@ -74,6 +74,7 @@ public class CreateCommand extends SubCommand {
             if (noTeleport) return;
             try {
                 IArena arena = Arena.arenaByName.get(arenaName);
+                arena.getArenaWorld().save();
                 player.setGameMode(GameMode.CREATIVE);
                 player.teleport(new Location(arena.getArenaWorld(), 0, 100, 0));
                 arena.getPlayersOnSetup().add(player.getUniqueId());

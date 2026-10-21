@@ -253,7 +253,7 @@ public class BossBarManager {
         return ChatColor.translateAlternateColorCodes('&', text
                 .replace("/server_name/", Properties.ServerName)
                 .replace("/arena_name/", arena.getArenaName())
-                .replace("/players/", arena.getPlayers() == null ? "0" : String.valueOf(arena.getPlayers().size()))
+                .replace("/players/", String.valueOf(arena.getActivePlayerCount()))
                 .replace("/max_players/", arena.getTeams() == null ? "0" : String.valueOf(arena.getMaxInTeam() * arena.getTeams().size()))
                 .replace("/phase/", arena.getCurrentGamePhase()));
     }

@@ -9,8 +9,7 @@ import com.l299l.newbedwars.commands.bedwars.admin.ArenaCommand;
 import com.l299l.newbedwars.commands.bedwars.admin.ManageGameCommand;
 import com.l299l.newbedwars.commands.bedwars.admin.ReloadCommand;
 import com.l299l.newbedwars.commands.bedwars.admin.SetLobbyCommand;
-import com.l299l.newbedwars.commands.bedwars.admin.setup.advenced.AddSpecialGamerulesCommand;
-import com.l299l.newbedwars.commands.bedwars.admin.setup.advenced.SetTeamsAccessoriesCommand;
+import com.l299l.newbedwars.commands.bedwars.admin.setup.advenced.*;
 import com.l299l.newbedwars.commands.bedwars.admin.setup.automatic.StartAutomaticSetupCommand;
 import com.l299l.newbedwars.commands.bedwars.admin.setup.basic.*;
 import com.l299l.newbedwars.commands.bedwars.admin.setup.normal.*;
@@ -230,6 +229,7 @@ public class MainCommand implements TabExecutor {
         setupSubBasicCommands.add(new LeaveSetupModeCommand());
         setupSubBasicCommands.add(new SaveSettingsCommand());
         setupSubBasicCommands.add(new RemoveCommand());
+        setupSubBasicCommands.add(new SetupModeCommand());
 
         setupSubNormalCommands.add(new CreateTeamCommand());
         setupSubNormalCommands.add(new SetGeneratorCommand());
@@ -248,12 +248,10 @@ public class MainCommand implements TabExecutor {
         setupSubNormalCommands.add(new SetWaitingPos2Command());
         setupSubNormalCommands.add(new SetWaitingSpawnCommand());
         setupSubNormalCommands.add(new SetWaitingTimeCommand());
-        setupSubNormalCommands.add(new GameruleCommand());
-        setupSubNormalCommands.add(new SetResourcePackCommand());
-        setupSubNormalCommands.add(new SetArenaGuiCommand());
-        setupSubNormalCommands.add(new SetGeneratorLevelingCommand());
-
-        setupSubAdvencedCommands.add(new AddSpecialGamerulesCommand());
+        setupSubAdvencedCommands.add(new GameruleCommand());
+        setupSubAdvencedCommands.add(new SetResourcePackCommand());
+        setupSubAdvencedCommands.add(new SetArenaGuiCommand());
+        setupSubAdvencedCommands.add(new SetGeneratorLevelingCommand());
         setupSubAdvencedCommands.add(new SetTeamsAccessoriesCommand());
 
         setupSubAutomaticCommands.add(new StartAutomaticSetupCommand());

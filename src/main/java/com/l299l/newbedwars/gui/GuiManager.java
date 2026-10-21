@@ -2,11 +2,14 @@ package com.l299l.newbedwars.gui;
 
 import com.l299l.newbedwars.NewBedwars;
 import com.l299l.newbedwars.config.Messages;
+import com.l299l.newbedwars.gui.configuration.game.settings.ArenaSelectGUISettings;
 import com.l299l.newbedwars.gui.configuration.game.settings.FastBuyCustomizerGUISettings;
 import com.l299l.newbedwars.gui.configuration.game.settings.ItemPickerGUISettings;
 import com.l299l.newbedwars.gui.configuration.game.settings.ProfileGUISettings;
 import com.l299l.newbedwars.gui.configuration.game.settings.ShopGUISettings;
+import com.l299l.newbedwars.gui.configuration.game.settings.SpectateSelectGUISettings;
 import com.l299l.newbedwars.gui.configuration.game.settings.SpectatorGUISettings;
+import com.l299l.newbedwars.gui.configuration.setup.settings.ArenaInfoGUISettings;
 import com.l299l.newbedwars.gui.configuration.setup.settings.BasicConfigurationGuiSettings;
 import com.l299l.newbedwars.gui.configuration.setup.settings.ConfirmLeaveGuiSettings;
 import com.l299l.newbedwars.gui.configuration.setup.settings.DeleteConfirmGuiSettings;
@@ -31,6 +34,7 @@ public class GuiManager {
     }
     public void reloadGuis() {
         NewBedwars plugin = NewBedwars.plugin;
+        plugin.getServer().getPluginManager().registerEvents(new ArenaInfoGUISettings(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new BasicConfigurationGuiSettings(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new ConfirmLeaveGuiSettings(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new DeleteConfirmGuiSettings(), plugin);
@@ -40,6 +44,8 @@ public class GuiManager {
         plugin.getServer().getPluginManager().registerEvents(new ProfileGUISettings(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new FastBuyCustomizerGUISettings(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new ItemPickerGUISettings(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new ArenaSelectGUISettings(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new SpectateSelectGUISettings(), plugin);
         guis.clear();
         List<GuiSave> guiSaves = plugin.getDataManager().getGuiData();
         for (GuiSave guiSave : guiSaves) {

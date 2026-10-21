@@ -10,7 +10,6 @@ import com.l299l.newbedwars.arena.phases.GamePhases;
 import com.l299l.newbedwars.arena.player.GamePlayer;
 import com.l299l.newbedwars.arena.player.inventory.ArmorContents;
 import com.l299l.newbedwars.arena.setup.Setup;
-import com.l299l.newbedwars.arena.gamerules.SpecialGamerule;
 import com.l299l.newbedwars.arena.shops.TeamShop;
 import com.l299l.newbedwars.arena.shops.TeamUpgrades;
 import com.l299l.newbedwars.arena.shops.Upgrade;
@@ -24,6 +23,7 @@ import com.l299l.newbedwars.utils.JsonUtils;
 import com.l299l.newbedwars.scoreboard.NScoreboard;
 import com.l299l.newbedwars.scoreboard.ScoreboardManager;
 import com.l299l.newbedwars.version.VersionCompat;
+import com.l299l.newbedwars.world.chunkgenerators.VoidGenerator;
 import org.bukkit.*;
 import org.bukkit.boss.BossBar;
 import org.bukkit.block.Block;
@@ -69,7 +69,6 @@ public class Arena implements IArena {
         }
     }
     private final HashMap<String, Team> teams;
-    private final HashMap<SpecialGamerule, Boolean> specialGamerules;
     private Gamerules gamerules;
     private Boolean enabled;
     private Setup setup;
@@ -133,7 +132,6 @@ public class Arena implements IArena {
         teams = new HashMap<String, Team>();
         generators = new ArrayList<>();
         spectatorsList = new ArrayList<Player>();
-        specialGamerules = new HashMap<>();
         scoreboards = new HashMap<>();
         placedBlocks = new HashSet<>();
         blastProtBlocks = new HashSet<>();
@@ -321,7 +319,9 @@ public class Arena implements IArena {
             Bukkit.getServer().getLogger().severe("Could not unload arena world " + worldName);
             return false;
         }
-        World newWorld = Bukkit.getServer().createWorld(new WorldCreator(worldName));
+        WorldCreator wc = new WorldCreator(worldName);
+        wc.generator(new VoidGenerator());
+        World newWorld = Bukkit.getServer().createWorld(wc);
         if (newWorld == null) {
             Bukkit.getServer().getLogger().severe("Could not recreate arena world " + worldName);
             return false;
@@ -515,7 +515,7 @@ public class Arena implements IArena {
             if (!checkWin()) {
                 if (Properties.RejoinTimeEnabled) {
                     int displayCount = players.size() - 1;
-                    broadcast("PlayerLeftArena", new HashMap<String, String>() {{
+                    broadcast("PlayerLeftArenaGame", new HashMap<String, String>() {{
                         put("/player/", playerName);
                         put("/players/", Integer.toString(displayCount));
                         put("/maxplayers/", Integer.toString(teams.size() * maxInTeam));
@@ -529,7 +529,7 @@ public class Arena implements IArena {
                     }.runTaskLater(NewBedwars.plugin, 20L * 60 * Properties.RejoinTime);
                 } else {
                     players.remove(player.getUniqueId());
-                    broadcast("PlayerLeftArena", new HashMap<String, String>() {{
+                    broadcast("PlayerLeftArenaGame", new HashMap<String, String>() {{
                         put("/player/", playerName);
                         put("/players/", Integer.toString(players.size()));
                         put("/maxplayers/", Integer.toString(teams.size() * maxInTeam));
@@ -600,6 +600,16 @@ public class Arena implements IArena {
     @Override
     public Set<UUID> getPlayers() {
         return players.keySet();
+    }
+
+    @Override
+    public int getActivePlayerCount() {
+        if (teams == null) return 0;
+        int count = 0;
+        for (Team team : teams.values()) {
+            count += team.getPlayers().size();
+        }
+        return count;
     }
 
     @Override
@@ -982,20 +992,6 @@ public class Arena implements IArena {
         world.setSpawnLocation(waitingSpawn);
     }
 
-    @Override
-    public void setSpecialGamerules(HashMap<String, Boolean> gamerules) {
-        for (String gamerule : gamerules.keySet()) {
-            setSpecialGamerule(gamerule, gamerules.get(gamerule));
-        }
-    }
-
-    @Override
-    public void setSpecialGamerule(String gamerule, Boolean value) {
-        SpecialGamerule specialGamerule = SpecialGamerule.getByName(gamerule);
-        if (specialGamerule != null) {
-            specialGamerules.put(specialGamerule, value);
-        }
-    }
 
     public void setWaitingTime(Integer time) {
         waitingTime = time;
@@ -1297,16 +1293,6 @@ public class Arena implements IArena {
         sb.append("\"waitingPos1\": ").append(waitingPos1 == null ? "null" : JsonUtils.locationToJson(waitingPos1)).append(",");
         sb.append("\"waitingPos2\": ").append(waitingPos2 == null ? "null" : JsonUtils.locationToJson(waitingPos2)).append(",");
         sb.append("\"waitingSpawn\": ").append(waitingSpawn == null ? "null" : JsonUtils.locationToJson(waitingSpawn)).append(",");
-        sb.append("\"specialGamerules\": {");
-        int j = 0;
-        for (SpecialGamerule gamerule : specialGamerules.keySet()) {
-            sb.append("\"").append(gamerule.getName()).append("\": ").append(specialGamerules.get(gamerule));
-            if (j < specialGamerules.size() - 1) {
-                sb.append(",");
-            }
-            j++;
-        }
-        sb.append("},");
         sb.append("\"gamePhasesId\": \"").append(gamePhases == null ? "null" : gamePhases.getID()).append("\",");
         sb.append("\"generatorsLeveling\": \"").append(generatorsLeveling == null ? "null" : generatorsLeveling.getId()).append("\",");
         sb.append("\"gamerules\": ").append(gamerules.toJson()).append(",");
@@ -1339,12 +1325,12 @@ public class Arena implements IArena {
     }
 
     private void checkIfCanStart() {
-        if (players.size() < minPlayers) {
-            broadcast("NotEnoughPlayers", new HashMap<String, String>() {{
+        if (players.size() < minPlayers || gameStatus != GameStatus.waiting) {
+/*            broadcast("NotEnoughPlayers", new HashMap<String, String>() {{
                 put("/arenaname/", arenaName);
                 put("/minplayers/", minPlayers.toString());
                 put("/players/", Integer.toString(players.size()));
-            }});
+            }});*/
             return;
         }
         starting();

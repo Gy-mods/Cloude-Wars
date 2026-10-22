@@ -2,7 +2,8 @@
 
 Cloude Wars is a Bedwars plugin for Paper 1.21.11. It is a fork of
 [New Bedwars](https://github.com/l299l/NewBedwars-Free) by l299l (GPL-3.0, see `LICENSE.txt`), forked from
-**2.4-beta** (upstream commit `29ff496`, 22.10.2026). `README.md` is New Bedwars' own readme and stays as upstream has it.
+**2.4-beta** (upstream commit `29ff496`, 22.10.2026). `README.md` is Cloude Wars' own; New Bedwars' readme is in
+its repository. The GitHub repository is [Gy-mods/Cloude-Wars](https://github.com/Gy-mods/Cloude-Wars) (`origin`).
 
 ## What Cloude Wars changes
 
@@ -77,7 +78,7 @@ git merge upstream/master
 ```
 
 To keep merges easy: put Cloude Wars code in `me.sirsz.cloudewars`, and only add one-line hooks to New Bedwars'
-files. Expect small conflicts in `pom.xml` and `plugin.yml` (version and name lines).
+files. Expect small conflicts in `pom.xml` and `plugin.yml` (version and name lines) and in `README.md` (keep ours).
 
 ## Other folders
 

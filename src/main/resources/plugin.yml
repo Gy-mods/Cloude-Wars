@@ -1,11 +1,11 @@
-name: NewBedwars
+name: CloudeWars
 version: '${project.version}'
 main: com.l299l.newbedwars.NewBedwars
 api-version: '1.17'
 load: STARTUP
-authors: [l299l]
+authors: [l299l, sirsz]
 softdepend: [PlaceholderAPI, WorldEdit, FastAsyncWorldEdit]
-description: Advanced and modern bedwars plugin!
+description: Cloude Wars - a Bedwars plugin based on New Bedwars by l299l
 commands:
   bw:
     description: Main bedwars command!

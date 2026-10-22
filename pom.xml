@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.l299l</groupId>
-    <artifactId>NewBedwars</artifactId>
-    <version>2.4-beta</version>
+    <artifactId>CloudeWars</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>NewBedwars</name>
+    <name>CloudeWars</name>
 
-    <description>Advanced and modern bedwars plugin!</description>
+    <description>Cloude Wars - a Bedwars plugin based on New Bedwars by l299l</description>
     <properties>
         <java.version>16</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

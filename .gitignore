@@ -118,3 +118,9 @@ buildNumber.properties
 
 # Common working directory
 run/
+
+# Cloude Wars: local test server (Paper jar, worlds, RCON password), the old addon code, local MCP config
+server/*
+!server/start.bat
+archive/
+.mcp.json

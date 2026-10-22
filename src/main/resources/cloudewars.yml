@@ -1,0 +1,16 @@
+# Cloude Wars settings. New Bedwars' own settings stay in config.yml.
+# Messages use & color codes.
+
+proxy:
+  # Run this server as a game server behind a Velocity proxy: players who connect go straight into the arena
+  # (its waiting lobby first), and go back to the lobby server when the game ends or they leave.
+  # Players with the permission cloudewars.proxy.admin (ops by default) are not moved: they join manually.
+  enabled: false
+  # The arena players are put into (a name from /bw arena list)
+  arena: mini
+  # The lobby server's name in the proxy's velocity.toml [servers] section
+  lobby-server: lobby
+
+messages:
+  proxy-arena-unavailable: "&cThis arena is not available right now, sending you back to the lobby."
+  proxy-game-running: "&cA game is already running here, sending you back to the lobby."

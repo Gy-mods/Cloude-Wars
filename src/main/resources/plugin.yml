@@ -123,3 +123,8 @@ permissions:
   newbedwars.party:
     description: Use all /party commands.
     default: true
+
+  # ---- Cloude Wars ----------------------------------
+  cloudewars.proxy.admin:
+    description: In proxy mode, stay on the game server instead of being moved into the arena or back to the lobby.
+    default: op

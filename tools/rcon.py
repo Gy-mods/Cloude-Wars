@@ -1,6 +1,7 @@
-"""Sends console commands to the local test server over RCON (settings come from server/server.properties).
+"""Sends console commands to a server of the local test network over RCON
+(settings come from servers/<server>/server.properties; the default server is bedwars1).
 
-Usage: python tools/rcon.py "cloudewars info" "plugins"
+Usage: python tools/rcon.py [--server lobby] "plugins" "list"
 """
 import pathlib
 import re
@@ -8,13 +9,13 @@ import socket
 import struct
 import sys
 
-PROPERTIES = pathlib.Path(__file__).resolve().parent.parent / "server" / "server.properties"
+SERVERS = pathlib.Path(__file__).resolve().parent.parent / "servers"
 COLOR_CODES = re.compile("§.")
 
 
-def read_properties():
+def read_properties(server):
     props = {}
-    for line in PROPERTIES.read_text(encoding="utf-8").splitlines():
+    for line in (SERVERS / server / "server.properties").read_text(encoding="utf-8").splitlines():
         if line and not line.startswith("#") and "=" in line:
             key, value = line.split("=", 1)
             props[key.strip()] = value.strip()
@@ -41,10 +42,10 @@ def receive(sock):
     return request_id, exactly(length - 8)[:-2].decode("utf-8", "replace")
 
 
-def main(commands):
+def main(server, commands):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    props = read_properties()
-    with socket.create_connection(("127.0.0.1", int(props.get("rcon.port", "25575"))), timeout=10) as sock:
+    props = read_properties(server)
+    with socket.create_connection(("127.0.0.1", int(props["rcon.port"])), timeout=10) as sock:
         sock.sendall(packet(1, 3, props["rcon.password"]))
         if receive(sock)[0] == -1:
             sys.exit("RCON login failed (wrong rcon.password?)")
@@ -54,6 +55,10 @@ def main(commands):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
+    args = sys.argv[1:]
+    server = "bedwars1"
+    if len(args) >= 2 and args[0] == "--server":
+        server, args = args[1], args[2:]
+    if not args:
         sys.exit(__doc__)
-    main(sys.argv[1:])
+    main(server, args)

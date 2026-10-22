@@ -492,6 +492,7 @@ public class Arena implements IArena {
         player.setAllowFlight(false);
         player.getActivePotionEffects().forEach(e -> player.removePotionEffect(e.getType()));
         player.setBedSpawnLocation(lobby, true);
+        me.sirsz.cloudewars.CloudeWars.onArenaLeave(player);
         playersWithResourcePack.remove(player.getUniqueId());
         if (spectatorsList.contains(player)) {
             spectatorsList.remove(player);

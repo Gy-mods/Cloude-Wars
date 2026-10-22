@@ -1,5 +1,5 @@
-# Builds Cloude Wars with Maven and copies the jar into the test server as server/plugins/CloudeWars.jar.
-# Stop the server first: Windows keeps the loaded jar locked.
+# Builds Cloude Wars with Maven and copies the jar into the bedwars1 test server as
+# servers/bedwars1/plugins/CloudeWars.jar. Stop that server first: Windows keeps the loaded jar locked.
 # Usage: powershell -File tools\deploy.ps1 [-SkipTests]
 param([switch]$SkipTests)
 
@@ -26,6 +26,6 @@ try {
 
 $jar = Get-ChildItem "$root\target\CloudeWars-*.jar" | Where-Object { $_.Name -notlike 'original-*' } |
     Sort-Object LastWriteTime -Descending | Select-Object -First 1
-New-Item -ItemType Directory -Force "$root\server\plugins" | Out-Null
-Copy-Item $jar.FullName "$root\server\plugins\CloudeWars.jar" -Force
-Write-Output "Deployed $($jar.Name) to server\plugins\CloudeWars.jar"
+New-Item -ItemType Directory -Force "$root\servers\bedwars1\plugins" | Out-Null
+Copy-Item $jar.FullName "$root\servers\bedwars1\plugins\CloudeWars.jar" -Force
+Write-Output "Deployed $($jar.Name) to servers\bedwars1\plugins\CloudeWars.jar"

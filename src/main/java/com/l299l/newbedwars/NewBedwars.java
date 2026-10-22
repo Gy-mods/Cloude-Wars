@@ -136,6 +136,7 @@ public final class NewBedwars extends JavaPlugin {
         reloadGenerators();
         reloadEvents();
         lobbyLocation = null;
+        me.sirsz.cloudewars.CloudeWars.reload(this);
     }
 
     public Properties getProperties() {

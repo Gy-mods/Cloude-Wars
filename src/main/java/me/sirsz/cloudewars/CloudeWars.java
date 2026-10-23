@@ -1,5 +1,8 @@
 package me.sirsz.cloudewars;
 
+import com.l299l.newbedwars.arena.Arena;
+import com.l299l.newbedwars.arena.IArena;
+import com.l299l.newbedwars.arena.team.Team;
 import com.l299l.newbedwars.commands.bedwars.SubCommand;
 import java.io.File;
 import java.io.InputStream;
@@ -13,8 +16,10 @@ import java.util.Set;
 import me.sirsz.cloudewars.cosmetics.ArmorTrims;
 import me.sirsz.cloudewars.cosmetics.TrimCommand;
 import me.sirsz.cloudewars.proxy.ProxyMode;
+import me.sirsz.cloudewars.teams.TeamBlocks;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -34,6 +39,7 @@ public final class CloudeWars {
     private static YamlConfiguration config = new YamlConfiguration();
     private static @Nullable ProxyMode proxyMode;
     private static @Nullable ArmorTrims trims;
+    private static @Nullable TeamBlocks teamBlocks;
     private static List<String> teamColorNames = List.of();
     private static Set<ChatColor> teamColors = EnumSet.noneOf(ChatColor.class);
 
@@ -47,6 +53,7 @@ public final class CloudeWars {
     public static void reload(JavaPlugin plugin) {
         config = loadConfig(plugin);
         loadTeamColors(plugin);
+        teamBlocks = new TeamBlocks(plugin, section("team-wood"));
         trims = new ArmorTrims(plugin, section("trims.materials"));
         proxyMode = new ProxyMode(plugin, config);
         proxyMode.enable();
@@ -70,6 +77,16 @@ public final class CloudeWars {
     @SuppressWarnings("deprecation") // New Bedwars' team colors are org.bukkit.ChatColor
     public static ItemStack[] decorateArmor(Player player, ChatColor teamColor, ItemStack[] armor) {
         return trims == null ? armor : trims.decorate(player, teamColor, armor);
+    }
+
+    /**
+     * Hook in {@code CustomItem.getItem()} and {@code getIcon(Player)}: the team version of a shop block for the
+     * player's team (oak planks become the team's planks), or the block itself outside a team.
+     */
+    public static Material teamMaterial(Player player, Material material) {
+        IArena arena = Arena.arenaByWorld.get(player.getWorld());
+        Team team = arena == null ? null : arena.getTeam(player);
+        return teamBlocks == null || team == null ? material : teamBlocks.forTeam(material, team.getColor());
     }
 
     /**

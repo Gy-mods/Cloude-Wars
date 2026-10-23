@@ -5,6 +5,18 @@
 # (an empty list allows every color). Arenas that already have other colors still load.
 team-colors: [white, black, red, orange, yellow, lime, blue, purple]
 
+# The wood type of each team color (keys as in team-colors). Oak planks bought in the shop come as the buyer's
+# team planks, e.g. red buys mangrove planks.
+team-wood:
+  white: pale_oak
+  black: dark_oak
+  red: mangrove
+  orange: acacia
+  yellow: bamboo
+  lime: jungle
+  blue: warped
+  purple: crimson
+
 proxy:
   # Run this server as a game server behind a Velocity proxy: players who connect go straight into the arena
   # (its waiting lobby first), and go back to the lobby server when the game ends or they leave.

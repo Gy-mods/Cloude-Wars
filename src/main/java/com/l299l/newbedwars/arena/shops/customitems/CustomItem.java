@@ -85,6 +85,7 @@ public class CustomItem {
             Team team = Arena.arenaByWorld.get(player.getWorld()).getTeam(player);
             resolvedMaterial = getWool(team.getColor());
         }
+        resolvedMaterial = me.sirsz.cloudewars.CloudeWars.teamMaterial(player, resolvedMaterial);
         ItemStack item = new ItemStack(resolvedMaterial, amount);
         ItemMeta meta = item.getItemMeta();
         assert meta != null;
@@ -271,6 +272,7 @@ public class CustomItem {
                 if (team != null) iconMaterial = getWool(team.getColor());
             }
         }
+        iconMaterial = me.sirsz.cloudewars.CloudeWars.teamMaterial(player, iconMaterial);
         return buildIcon(language, iconMaterial);
     }
 

@@ -104,6 +104,7 @@ Categories:
     Description: "&7Browse building blocks"
     Items:
       - wool
+      - Wood
       - EndStone
       - Obsidian
       - Sandstone

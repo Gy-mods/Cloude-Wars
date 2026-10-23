@@ -15,6 +15,10 @@ its repository. The GitHub repository is [Gy-mods/Cloude-Wars](https://github.co
 - **Team colors**: only white, black, red, orange, yellow, lime, blue and purple (`team-colors` in `cloudewars.yml`,
   same names as `/bw createTeam`). `/bw createTeam` refuses other colors and its Tab completion lists only these.
   Colors are compared after New Bedwars' own name translation (`GOLD` = orange). Existing arenas still load.
+- **Team wood** (`me.sirsz.cloudewars.teams.TeamBlocks`): each team color has a wood type (`team-wood` in
+  `cloudewars.yml`: white pale_oak, black dark_oak, red mangrove, orange acacia, yellow bamboo, lime jungle, blue
+  warped, purple crimson). Oak is the placeholder: the shop's Wood item (oak planks) shows and gives the buyer's team
+  planks. The default shop (`exampleShop.yml`) now lists Wood in the Blocks category.
 - **Armor trims** (`me.sirsz.cloudewars.cosmetics`): `/bw trim <helmet|chestplate|leggings|boots> <trim|none>` picks
   a trim pattern per armor piece, for everyone. The trim material comes from the team color (`trims.materials` in
   `cloudewars.yml`, keyed by the color names `/bw createTeam` takes: white, black, red, orange, yellow, lime, blue,
@@ -36,6 +40,7 @@ Cloude Wars code lives in `me.sirsz.cloudewars`. It is connected to New Bedwars 
 | `CloudeWars.onArenaLeave(player)` | `Arena.leave()`, after the teleport to the lobby location | Proxy mode sends the player to the lobby server |
 | `CloudeWars.decorateArmor(player, team.getColor(), ...)` | `ArmorContents.loadPlayerArmorContents()` | Puts the player's trims on the armor New Bedwars hands out |
 | `CloudeWars.addPlayerCommands(...)` | `MainCommand.setSubCommands()`, before the help list is built | Adds `/bw trim` for players in the lobby and in games |
+| `CloudeWars.teamMaterial(player, material)` | `CustomItem.getItem()` and `getIcon(Player)`, after the wool swap | Shop oak planks become the team's planks |
 | `CloudeWars.checkTeamColor(player, color)` | `CreateTeamCommand.perform()`, after parsing the color | Refuses colors outside `team-colors` |
 | `CloudeWars.teamColorNames()` | `CreateTeamCommand.getSubcommandArguments()` | Tab completion lists only the allowed colors |
 

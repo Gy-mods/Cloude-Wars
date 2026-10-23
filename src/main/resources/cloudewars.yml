@@ -17,6 +17,12 @@ team-wood:
   blue: warped
   purple: crimson
 
+# Map maker team blocks: while building an arena in setup mode, place a block whose name starts with #<team>#
+# (rename it in an anvil, e.g. "#1#red wall#"). When a game starts it becomes that team's version: white wool,
+# terracotta, concrete, glass, beds... take the team color, oak blocks (planks, stairs, logs...) the team's wood.
+# Team numbers get their colors from this list in order: team 1 = the first color, team 2 the second, ...
+team-numbers: [red, blue, lime, yellow, orange, purple, white, black]
+
 proxy:
   # Run this server as a game server behind a Velocity proxy: players who connect go straight into the arena
   # (its waiting lobby first), and go back to the lobby server when the game ends or they leave.
@@ -41,8 +47,12 @@ trims:
     purple: amethyst
 
 # {piece} = helmet/chestplate/leggings/boots, {trim} = the trim pattern, {trims} = every pattern,
-# {colors} = the team colors from team-colors
+# {colors} = the team colors from team-colors, {team} = a team number, {max} = the highest team number
 messages:
+  team-block-marked: "&7Team &e{team} &7block"
+  team-block-unmarked: "&7Removed the team &e{team} &7block"
+  team-block-no-variant: "&cThis block has no team version, so it was not marked."
+  team-block-no-team: "&cThere is no team {team}: team numbers go from 1 to {max}."
   team-color-not-allowed: "&cCloude Wars only supports these team colors: {colors}"
   proxy-arena-unavailable: "&cThis arena is not available right now, sending you back to the lobby."
   proxy-game-running: "&cA game is already running here, sending you back to the lobby."

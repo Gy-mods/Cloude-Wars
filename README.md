@@ -14,11 +14,14 @@ Cloude Wars is built on [New Bedwars](https://github.com/l299l/NewBedwars-Free) 
 - **8 team colors**: white, black, red, orange, yellow, lime, blue and purple; `/bw createTeam` refuses the others.
 - **Team wood**: planks bought in the shop come in your team's wood (white = pale oak, black = dark oak,
   red = mangrove, orange = acacia, yellow = bamboo, lime = jungle, blue = warped, purple = crimson).
+- **Team blocks** (map maker): while building an arena, rename white wool, terracotta, concrete, glass, oak planks,
+  stairs, logs and so on to `#<team>#...` (for example `#1#wall#`) in an anvil and place them. When a game starts
+  they turn into that team's color or wood, so a map stores team numbers instead of colors.
 - **Armor trims**: `/bw trim <helmet|chestplate|leggings|boots> <trim>` picks a trim pattern for each armor piece.
   The trim material comes from your team color (white = quartz, black = netherite, red = redstone, orange = resin,
   yellow = gold, lime = emerald, blue = lapis, purple = amethyst), and it stays on armor upgrades too.
 
-More is coming: team upgrades and a map maker.
+More is coming: team upgrades and the rest of the map maker (symmetry, random team colors).
 
 ## Building
 

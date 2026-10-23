@@ -19,6 +19,16 @@ its repository. The GitHub repository is [Gy-mods/Cloude-Wars](https://github.co
   `cloudewars.yml`: white pale_oak, black dark_oak, red mangrove, orange acacia, yellow bamboo, lime jungle, blue
   warped, purple crimson). Oak is the placeholder: the shop's Wood item (oak planks) shows and gives the buyer's team
   planks. The default shop (`exampleShop.yml`) now lists Wood in the Blocks category.
+- **Team blocks** for the map maker (`me.sirsz.cloudewars.teams.TeamBlockMarks`): in setup mode, a block placed from
+  an item named `#<team>#...` (renamed in an anvil, e.g. `#1#red wall#`) is remembered in
+  `plugins/CloudeWars/teamblocks/<arena>.yml` (breaking it forgets it). When a game starts, every remembered block
+  turns into its team's version: white dye blocks (wool, terracotta, concrete, glass, panes, carpets, beds...) take
+  the team color, oak blocks (planks, stairs, slabs, fences, logs, doors...) the team's wood. Directions and shapes
+  are kept, beds and doors change both halves, and crimson/warped use stems and hyphae, bamboo uses bamboo blocks.
+  Signs, banners, shulker boxes and shelves are not swapped (their contents would be lost). Maps store team numbers,
+  not colors: until random team colors exist, `team-numbers` in `cloudewars.yml` gives each number its color
+  (1 red, 2 blue, 3 lime, 4 yellow, 5 orange, 6 purple, 7 white, 8 black). The arena world reloads after every game,
+  which brings the placeholders back.
 - **Armor trims** (`me.sirsz.cloudewars.cosmetics`): `/bw trim <helmet|chestplate|leggings|boots> <trim|none>` picks
   a trim pattern per armor piece, for everyone. The trim material comes from the team color (`trims.materials` in
   `cloudewars.yml`, keyed by the color names `/bw createTeam` takes: white, black, red, orange, yellow, lime, blue,
@@ -37,6 +47,7 @@ Cloude Wars code lives in `me.sirsz.cloudewars`. It is connected to New Bedwars 
 | Hook | Where | What it does |
 | --- | --- | --- |
 | `CloudeWars.reload(this)` | end of `NewBedwars.reloadAll()` | Loads `cloudewars.yml` and registers listeners (also after `/bw reload`, which unregisters all listeners) |
+| `CloudeWars.onGameStart(this)` | `Arena.start()`, before the teams start | Turns the map's team blocks into their teams' versions |
 | `CloudeWars.onArenaLeave(player)` | `Arena.leave()`, after the teleport to the lobby location | Proxy mode sends the player to the lobby server |
 | `CloudeWars.decorateArmor(player, team.getColor(), ...)` | `ArmorContents.loadPlayerArmorContents()` | Puts the player's trims on the armor New Bedwars hands out |
 | `CloudeWars.addPlayerCommands(...)` | `MainCommand.setSubCommands()`, before the help list is built | Adds `/bw trim` for players in the lobby and in games |

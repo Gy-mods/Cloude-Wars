@@ -16,7 +16,9 @@ import java.util.Set;
 import me.sirsz.cloudewars.cosmetics.ArmorTrims;
 import me.sirsz.cloudewars.cosmetics.TrimCommand;
 import me.sirsz.cloudewars.proxy.ProxyMode;
+import me.sirsz.cloudewars.teams.TeamBlockMarks;
 import me.sirsz.cloudewars.teams.TeamBlocks;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -40,6 +42,7 @@ public final class CloudeWars {
     private static @Nullable ProxyMode proxyMode;
     private static @Nullable ArmorTrims trims;
     private static @Nullable TeamBlocks teamBlocks;
+    private static @Nullable TeamBlockMarks teamBlockMarks;
     private static List<String> teamColorNames = List.of();
     private static Set<ChatColor> teamColors = EnumSet.noneOf(ChatColor.class);
 
@@ -54,6 +57,8 @@ public final class CloudeWars {
         config = loadConfig(plugin);
         loadTeamColors(plugin);
         teamBlocks = new TeamBlocks(plugin, section("team-wood"));
+        teamBlockMarks = new TeamBlockMarks(plugin, teamBlocks, loadTeamNumbers(plugin));
+        plugin.getServer().getPluginManager().registerEvents(teamBlockMarks, plugin);
         trims = new ArmorTrims(plugin, section("trims.materials"));
         proxyMode = new ProxyMode(plugin, config);
         proxyMode.enable();
@@ -64,6 +69,13 @@ public final class CloudeWars {
         TrimCommand trim = new TrimCommand();
         lobbyCommands.add(trim);
         gameCommands.add(trim);
+    }
+
+    /** Hook in {@code Arena.start()}, before the teams start: turns the map's team blocks into their teams' versions. */
+    public static void onGameStart(IArena arena) {
+        if (teamBlockMarks != null) {
+            teamBlockMarks.recolor(arena);
+        }
     }
 
     /** Hook in {@code Arena.leave()}, right after New Bedwars moved the player to this server's lobby location. */
@@ -113,6 +125,15 @@ public final class CloudeWars {
 
     /** Sends messages.&lt;key&gt; from cloudewars.yml; replacements are name, value pairs for {name} placeholders. */
     public static void send(CommandSender to, String key, String... replacements) {
+        to.sendMessage(message(key, replacements));
+    }
+
+    /** Like {@link #send}, but shown above the hotbar instead of in chat. */
+    public static void actionBar(Player to, String key, String... replacements) {
+        to.sendActionBar(message(key, replacements));
+    }
+
+    private static Component message(String key, String... replacements) {
         String text = config.getString("messages." + key); // without a fallback argument, the jar's default is used
         if (text == null) {
             text = key;
@@ -120,7 +141,20 @@ public final class CloudeWars {
         for (int i = 0; i + 1 < replacements.length; i += 2) {
             text = text.replace("{" + replacements[i] + "}", replacements[i + 1]);
         }
-        to.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(text));
+        return LegacyComponentSerializer.legacyAmpersand().deserialize(text);
+    }
+
+    /** team-numbers: the color names of team 1, 2, ... (only names that can color blocks). */
+    private static List<String> loadTeamNumbers(JavaPlugin plugin) {
+        List<String> colors = new ArrayList<>();
+        for (String name : config.getStringList("team-numbers")) {
+            if (!TeamBlocks.isDyeColor(name)) {
+                plugin.getLogger().warning("cloudewars.yml team-numbers: '" + name + "' is no block color; team "
+                        + (colors.size() + 1) + " gets no team blocks");
+            }
+            colors.add(name.toLowerCase(Locale.ROOT));
+        }
+        return List.copyOf(colors);
     }
 
     @SuppressWarnings("deprecation")

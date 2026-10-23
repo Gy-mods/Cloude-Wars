@@ -157,6 +157,7 @@ public class Arena implements IArena {
         gameStartMillis = System.currentTimeMillis();
         broadcast("GameStarted");
         clearWaitingArea();
+        me.sirsz.cloudewars.CloudeWars.onGameStart(this);
         for (Team team : teams.values()) {
             team.start();
         }

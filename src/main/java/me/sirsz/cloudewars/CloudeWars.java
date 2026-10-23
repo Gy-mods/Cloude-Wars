@@ -5,7 +5,11 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import me.sirsz.cloudewars.cosmetics.ArmorTrims;
 import me.sirsz.cloudewars.cosmetics.TrimCommand;
 import me.sirsz.cloudewars.proxy.ProxyMode;
@@ -30,6 +34,8 @@ public final class CloudeWars {
     private static YamlConfiguration config = new YamlConfiguration();
     private static @Nullable ProxyMode proxyMode;
     private static @Nullable ArmorTrims trims;
+    private static List<String> teamColorNames = List.of();
+    private static Set<ChatColor> teamColors = EnumSet.noneOf(ChatColor.class);
 
     private CloudeWars() {
     }
@@ -40,6 +46,7 @@ public final class CloudeWars {
      */
     public static void reload(JavaPlugin plugin) {
         config = loadConfig(plugin);
+        loadTeamColors(plugin);
         trims = new ArmorTrims(plugin, section("trims.materials"));
         proxyMode = new ProxyMode(plugin, config);
         proxyMode.enable();
@@ -65,6 +72,24 @@ public final class CloudeWars {
         return trims == null ? armor : trims.decorate(player, teamColor, armor);
     }
 
+    /**
+     * Hook in {@code CreateTeamCommand.perform()}: whether a new team may get this color. If not, tells the player
+     * which colors are supported.
+     */
+    @SuppressWarnings("deprecation")
+    public static boolean checkTeamColor(Player player, ChatColor color) {
+        if (teamColors.isEmpty() || teamColors.contains(color)) {
+            return true;
+        }
+        send(player, "team-color-not-allowed", "colors", String.join(", ", teamColorNames));
+        return false;
+    }
+
+    /** Hook in {@code CreateTeamCommand.getSubcommandArguments()}: the colors /bw createTeam suggests. */
+    public static List<String> teamColorNames() {
+        return teamColorNames.stream().map(name -> name.toUpperCase(Locale.ROOT)).toList();
+    }
+
     public static @Nullable ArmorTrims trims() {
         return trims;
     }
@@ -79,6 +104,23 @@ public final class CloudeWars {
             text = text.replace("{" + replacements[i] + "}", replacements[i + 1]);
         }
         to.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(text));
+    }
+
+    @SuppressWarnings("deprecation")
+    private static void loadTeamColors(JavaPlugin plugin) {
+        List<String> names = new ArrayList<>();
+        Set<ChatColor> colors = EnumSet.noneOf(ChatColor.class);
+        for (String name : config.getStringList("team-colors")) {
+            ChatColor color = TeamColors.fromName(name);
+            if (color == null) {
+                plugin.getLogger().warning("cloudewars.yml team-colors: skipping unknown color '" + name + "'");
+                continue;
+            }
+            names.add(name);
+            colors.add(color);
+        }
+        teamColorNames = List.copyOf(names);
+        teamColors = colors;
     }
 
     /** A config section, from the jar's defaults when the server's cloudewars.yml does not have it yet. */

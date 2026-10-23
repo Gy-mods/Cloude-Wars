@@ -42,6 +42,7 @@ public class CreateTeamCommand extends SubCommand {
         if(args.length >= 2) {
             try {
                 ChatColor color = parseColor(args[1].toUpperCase());
+                if (!me.sirsz.cloudewars.CloudeWars.checkTeamColor(player, color)) return;
                 String name;
                 if(args.length == 3) {
                     name = args[2];
@@ -61,6 +62,8 @@ public class CreateTeamCommand extends SubCommand {
     @Override
     public List<String> getSubcommandArguments(Player player, String[] args) {
         if(args.length == 2) {
+            List<String> allowed = me.sirsz.cloudewars.CloudeWars.teamColorNames();
+            if (!allowed.isEmpty()) return new ArrayList<>(allowed);
             return new ArrayList<>(Arrays.asList("WHITE", "LIGHT_GRAY", "GRAY", "BLACK", "RED", "ORANGE", "YELLOW", "LIME",
                     "GREEN", "CYAN", "LIGHT_BLUE", "BLUE", "PURPLE", "PINK"));
         }

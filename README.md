@@ -11,6 +11,7 @@ Cloude Wars is built on [New Bedwars](https://github.com/l299l/NewBedwars-Free) 
 
 - **Proxy mode** for Velocity networks: a game server runs one arena, players who connect go straight into it, and
   go back to the lobby server when the game ends. Settings are in `plugins/CloudeWars/cloudewars.yml`.
+- **8 team colors**: white, black, red, orange, yellow, lime, blue and purple; `/bw createTeam` refuses the others.
 - **Armor trims**: `/bw trim <helmet|chestplate|leggings|boots> <trim>` picks a trim pattern for each armor piece.
   The trim material comes from your team color (white = quartz, black = netherite, red = redstone, orange = resin,
   yellow = gold, lime = emerald, blue = lapis, purple = amethyst), and it stays on armor upgrades too.

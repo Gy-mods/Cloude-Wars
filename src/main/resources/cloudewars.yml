@@ -1,6 +1,10 @@
 # Cloude Wars settings. New Bedwars' own settings stay in config.yml.
 # Messages use & color codes.
 
+# The team colors Cloude Wars supports, by the names /bw createTeam takes. /bw createTeam refuses other colors
+# (an empty list allows every color). Arenas that already have other colors still load.
+team-colors: [white, black, red, orange, yellow, lime, blue, purple]
+
 proxy:
   # Run this server as a game server behind a Velocity proxy: players who connect go straight into the arena
   # (its waiting lobby first), and go back to the lobby server when the game ends or they leave.
@@ -24,8 +28,10 @@ trims:
     blue: lapis
     purple: amethyst
 
-# {piece} = helmet/chestplate/leggings/boots, {trim} = the trim pattern, {trims} = every pattern
+# {piece} = helmet/chestplate/leggings/boots, {trim} = the trim pattern, {trims} = every pattern,
+# {colors} = the team colors from team-colors
 messages:
+  team-color-not-allowed: "&cCloude Wars only supports these team colors: {colors}"
   proxy-arena-unavailable: "&cThis arena is not available right now, sending you back to the lobby."
   proxy-game-running: "&cA game is already running here, sending you back to the lobby."
   trim-set: "&aYour {piece} trim is now &e{trim}&a."

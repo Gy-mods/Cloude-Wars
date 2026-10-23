@@ -12,6 +12,9 @@ its repository. The GitHub repository is [Gy-mods/Cloude-Wars](https://github.co
 - **Paper 1.21.11 API and Java 21** instead of New Bedwars' Paper 1.17 / Java 16 (needed for trims). This renamed
   three constants in New Bedwars' code (`Particle.DUST`, `EntityType.FIREWORK_ROCKET`, `EntityType.TNT` in
   `Arena.java` and `ArenaGameplayEvents.java`) and moved SnakeYAML to 2.2, the version Paper ships.
+- **Team colors**: only white, black, red, orange, yellow, lime, blue and purple (`team-colors` in `cloudewars.yml`,
+  same names as `/bw createTeam`). `/bw createTeam` refuses other colors and its Tab completion lists only these.
+  Colors are compared after New Bedwars' own name translation (`GOLD` = orange). Existing arenas still load.
 - **Armor trims** (`me.sirsz.cloudewars.cosmetics`): `/bw trim <helmet|chestplate|leggings|boots> <trim|none>` picks
   a trim pattern per armor piece, for everyone. The trim material comes from the team color (`trims.materials` in
   `cloudewars.yml`, keyed by the color names `/bw createTeam` takes: white, black, red, orange, yellow, lime, blue,
@@ -33,6 +36,8 @@ Cloude Wars code lives in `me.sirsz.cloudewars`. It is connected to New Bedwars 
 | `CloudeWars.onArenaLeave(player)` | `Arena.leave()`, after the teleport to the lobby location | Proxy mode sends the player to the lobby server |
 | `CloudeWars.decorateArmor(player, team.getColor(), ...)` | `ArmorContents.loadPlayerArmorContents()` | Puts the player's trims on the armor New Bedwars hands out |
 | `CloudeWars.addPlayerCommands(...)` | `MainCommand.setSubCommands()`, before the help list is built | Adds `/bw trim` for players in the lobby and in games |
+| `CloudeWars.checkTeamColor(player, color)` | `CreateTeamCommand.perform()`, after parsing the color | Refuses colors outside `team-colors` |
+| `CloudeWars.teamColorNames()` | `CreateTeamCommand.getSubcommandArguments()` | Tab completion lists only the allowed colors |
 
 ## Build and deploy
 

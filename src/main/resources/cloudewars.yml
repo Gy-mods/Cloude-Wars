@@ -11,6 +11,24 @@ proxy:
   # The lobby server's name in the proxy's velocity.toml [servers] section
   lobby-server: lobby
 
+trims:
+  # Players pick a trim pattern for each armor piece with /bw trim; the trim material comes from their team color.
+  # Keys are team colors as typed in /bw createTeam. A team whose color is not listed gets no trims.
+  materials:
+    white: quartz
+    black: netherite
+    red: redstone
+    orange: resin
+    yellow: gold
+    lime: emerald
+    blue: lapis
+    purple: amethyst
+
+# {piece} = helmet/chestplate/leggings/boots, {trim} = the trim pattern, {trims} = every pattern
 messages:
   proxy-arena-unavailable: "&cThis arena is not available right now, sending you back to the lobby."
   proxy-game-running: "&cA game is already running here, sending you back to the lobby."
+  trim-set: "&aYour {piece} trim is now &e{trim}&a."
+  trim-removed: "&aRemoved the trim from your {piece}."
+  trim-usage: "&cUsage: /bw trim <helmet|chestplate|leggings|boots> <trim|none>"
+  trim-unknown: "&cThere is no trim called '{trim}'. Trims: {trims}"

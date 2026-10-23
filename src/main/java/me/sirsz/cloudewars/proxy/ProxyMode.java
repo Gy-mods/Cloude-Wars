@@ -5,7 +5,7 @@ import com.google.common.io.ByteStreams;
 import com.l299l.newbedwars.arena.Arena;
 import com.l299l.newbedwars.arena.GameStatus;
 import com.l299l.newbedwars.arena.IArena;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import me.sirsz.cloudewars.CloudeWars;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -35,16 +35,12 @@ public final class ProxyMode implements Listener {
     private final boolean enabled;
     private final String arenaName;
     private final String lobbyServer;
-    private final String msgArenaUnavailable;
-    private final String msgGameRunning;
 
     public ProxyMode(JavaPlugin plugin, YamlConfiguration config) {
         this.plugin = plugin;
         this.enabled = config.getBoolean("proxy.enabled");
         this.arenaName = config.getString("proxy.arena");
         this.lobbyServer = config.getString("proxy.lobby-server");
-        this.msgArenaUnavailable = config.getString("messages.proxy-arena-unavailable");
-        this.msgGameRunning = config.getString("messages.proxy-game-running");
     }
 
     public void enable() {
@@ -72,7 +68,7 @@ public final class ProxyMode implements Listener {
         }
         IArena arena = Arena.arenaByName.get(arenaName);
         if (arena == null || !arena.isEnabled()) {
-            sendToLobby(player, msgArenaUnavailable);
+            sendToLobby(player, "proxy-arena-unavailable");
             return;
         }
         // Back after a disconnect while their game is still running
@@ -84,7 +80,7 @@ public final class ProxyMode implements Listener {
             return;
         }
         boolean running = status == GameStatus.playing || status == GameStatus.ending;
-        sendToLobby(player, running ? msgGameRunning : msgArenaUnavailable);
+        sendToLobby(player, running ? "proxy-game-running" : "proxy-arena-unavailable");
     }
 
     /** New Bedwars just moved the player out of an arena: on a game server that means back to the lobby server. */
@@ -104,8 +100,8 @@ public final class ProxyMode implements Listener {
         return player.hasPermission(ADMIN_PERMISSION);
     }
 
-    private void sendToLobby(Player player, String message) {
-        player.sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message));
+    private void sendToLobby(Player player, String messageKey) {
+        CloudeWars.send(player, messageKey);
         connect(player, lobbyServer);
     }
 

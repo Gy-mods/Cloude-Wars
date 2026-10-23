@@ -600,7 +600,7 @@ public class ArenaGameplayEvents implements Listener {
             placed.setType(Material.AIR, false);
             arena.removeBlastProtBlock(placed.getLocation());
             TNTPrimed tnt = (TNTPrimed) placed.getWorld().spawnEntity(
-                    placed.getLocation().add(0.5, 0, 0.5), EntityType.PRIMED_TNT);
+                    placed.getLocation().add(0.5, 0, 0.5), EntityType.TNT);
             tnt.setFuseTicks(60);
         }
     }

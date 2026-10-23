@@ -9,6 +9,15 @@ its repository. The GitHub repository is [Gy-mods/Cloude-Wars](https://github.co
 
 - **Identity:** `plugin.yml` (name `CloudeWars`, authors, description) and `pom.xml` (artifact `CloudeWars`,
   version `0.1.0-SNAPSHOT`). The Java packages stay `com.l299l.newbedwars`, so upstream updates merge cleanly.
+- **Paper 1.21.11 API and Java 21** instead of New Bedwars' Paper 1.17 / Java 16 (needed for trims). This renamed
+  three constants in New Bedwars' code (`Particle.DUST`, `EntityType.FIREWORK_ROCKET`, `EntityType.TNT` in
+  `Arena.java` and `ArenaGameplayEvents.java`) and moved SnakeYAML to 2.2, the version Paper ships.
+- **Armor trims** (`me.sirsz.cloudewars.cosmetics`): `/bw trim <helmet|chestplate|leggings|boots> <trim|none>` picks
+  a trim pattern per armor piece, for everyone. The trim material comes from the team color (`trims.materials` in
+  `cloudewars.yml`, keyed by the color names `/bw createTeam` takes: white, black, red, orange, yellow, lime, blue,
+  purple). Every armor New Bedwars gives gets the trims: starting leather, chainmail/iron/diamond upgrades, respawns.
+  Changing a trim mid-game updates the worn armor at once. Choices are saved per player in
+  `plugins/CloudeWars/trims.yml` (per server; not shared across a network yet).
 - **Proxy mode** (`me.sirsz.cloudewars.proxy.ProxyMode`, settings in `plugins/CloudeWars/cloudewars.yml`): the server
   runs one arena behind a Velocity proxy. Players who connect go straight into the arena's waiting room, and go back
   to the lobby server when the game ends or they leave (leave item, `/bw lobby`). A player who connects while a game
@@ -22,6 +31,8 @@ Cloude Wars code lives in `me.sirsz.cloudewars`. It is connected to New Bedwars 
 | --- | --- | --- |
 | `CloudeWars.reload(this)` | end of `NewBedwars.reloadAll()` | Loads `cloudewars.yml` and registers listeners (also after `/bw reload`, which unregisters all listeners) |
 | `CloudeWars.onArenaLeave(player)` | `Arena.leave()`, after the teleport to the lobby location | Proxy mode sends the player to the lobby server |
+| `CloudeWars.decorateArmor(player, team.getColor(), ...)` | `ArmorContents.loadPlayerArmorContents()` | Puts the player's trims on the armor New Bedwars hands out |
+| `CloudeWars.addPlayerCommands(...)` | `MainCommand.setSubCommands()`, before the help list is built | Adds `/bw trim` for players in the lobby and in games |
 
 ## Build and deploy
 

@@ -42,7 +42,7 @@ public class ArmorContents {
 
     public void loadPlayerArmorContents(Player player) {
         this.player = player;
-        player.getInventory().setArmorContents(getArmorContents());
+        player.getInventory().setArmorContents(me.sirsz.cloudewars.CloudeWars.decorateArmor(player, team.getColor(), getArmorContents()));
         ItemStack[] contents = getInventoryContents();
         for (int i = 0; i < contents.length; i++) {
             if (contents[i] != null) {

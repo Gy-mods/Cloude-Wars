@@ -218,6 +218,7 @@ public class MainCommand implements TabExecutor {
         subCommandsLobbyAdmin.add(new ReloadCommand());
 
         subCommandsGameAdmin.add(new ManageGameCommand());
+        me.sirsz.cloudewars.CloudeWars.addPlayerCommands(subCommandsLobbyPublic, subCommandsGamePublic);
 
         ArrayList<SubCommand> allLobby = new ArrayList<>(subCommandsLobbyPublic);
         allLobby.addAll(subCommandsLobbyAdmin);

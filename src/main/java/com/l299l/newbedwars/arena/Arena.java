@@ -1269,7 +1269,7 @@ public class Arena implements IArena {
                     Player p = Bukkit.getPlayer(uuid);
                     if (p == null || spectatorsList.contains(p)) continue;
                     if (p.getInventory().contains(Material.TNT)) {
-                        world.spawnParticle(Particle.REDSTONE, p.getLocation().add(0, 2.2, 0),
+                        world.spawnParticle(Particle.DUST, p.getLocation().add(0, 2.2, 0),
                                 6, 0.3, 0.2, 0.3, 0,
                                 new Particle.DustOptions(org.bukkit.Color.RED, 1.2f));
                     }
@@ -1574,7 +1574,7 @@ public class Arena implements IArena {
                     .trail(true)
                     .flicker(true)
                     .build();
-            Firework fw = (Firework) world.spawnEntity(loc, EntityType.FIREWORK);
+            Firework fw = (Firework) world.spawnEntity(loc, EntityType.FIREWORK_ROCKET);
             FireworkMeta meta = fw.getFireworkMeta();
             meta.addEffect(effect);
             meta.setPower(1);

@@ -1,6 +1,5 @@
 package me.sirsz.cloudewars.mapmaker;
 
-import me.sirsz.cloudewars.BlockPos;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -49,39 +48,7 @@ enum Quarter {
         return values()[(ordinal() + steps) % 4];
     }
 
-    int minX(int size) {
-        return signX > 0 ? 0 : -size;
-    }
-
-    int maxX(int size) {
-        return signX > 0 ? size - 1 : -1;
-    }
-
-    int minZ(int size) {
-        return signZ > 0 ? 0 : -size;
-    }
-
-    int maxZ(int size) {
-        return signZ > 0 ? size - 1 : -1;
-    }
-
-    /** Whether a block column is inside the map of quarters this size (in any quarter). */
-    static boolean inMap(int x, int z, int size) {
-        return x >= -size && x < size && z >= -size && z < size;
-    }
-
-    /**
-     * Where a block goes when the map turns clockwise by 90 degrees {@code steps} times around the middle (the corner
-     * at x = 0, z = 0). One turn moves a quarter to the next one clockwise, like east to south.
-     */
-    static BlockPos turn(BlockPos pos, int steps) {
-        int x = pos.x();
-        int z = pos.z();
-        for (int i = 0; i < steps; i++) {
-            int turnedX = -z - 1;
-            z = x;
-            x = turnedX;
-        }
-        return new BlockPos(x, pos.y(), z);
+    Region region(int size) {
+        return new Region(signX > 0 ? 0 : -size, signX > 0 ? size - 1 : -1, signZ > 0 ? 0 : -size, signZ > 0 ? size - 1 : -1);
     }
 }

@@ -32,16 +32,20 @@ its repository. The GitHub repository is [Gy-mods/Cloude-Wars](https://github.co
   becomes `<COLOR>_...`), so new white blocks work without code changes, like 26.3's wool and concrete slabs and
   stairs (tested in a 26.3 game).
 - **Symmetry** (`me.sirsz.cloudewars.mapmaker`, `symmetry` in `cloudewars.yml`): `/bw setBuildSymmetry quarter
-  nomiddle [size]` and `/bw syncSymmetry`, in every setup mode. The map's middle is the block corner at x 0, z 0
-  (New Bedwars starts every setup at 0, 100, 0) and the quarters split there with no middle block line (`Quarter`).
-  The quarter the builder stands in is theirs; the other three get a floor of `marker-block` at `marker-y`, only
-  where there is air. The choice is saved in `plugins/CloudeWars/symmetry/<arena>.yml`. `syncSymmetry`
-  (`QuarterCopy`) copies every block column of the build quarter (world bottom to the highest block of the source
-  or target column, air too) turned by 90, 180 and 270 degrees clockwise, a slice of columns per tick (20 ms), with
-  `BlockData.rotate`; block entities are copied with `BlockState.copy(Location)` so chests and signs keep their
-  contents. Team block marks in the other quarters are replaced: team N in the build quarter becomes
-  N + k * (highest team number in the build quarter) in copy k, and numbers above `team-numbers` are left out with
-  a message. Entities (armor stands, item frames) are not copied. Only `quarter nomiddle` exists so far.
+  nomiddle [size]`, `/bw setBuildSymmetry half nomiddle <mirror|central> [size]` and `/bw syncSymmetry`, in every
+  setup mode. The map's middle is the block corner at x 0, z 0 (New Bedwars starts every setup at 0, 100, 0) and the
+  map is 2 x size blocks each way around it, split there with no middle block line: into quarters (`Quarter`), or
+  into halves (`Half`) at z 0 or x 0, whichever line the builder stands farther from. The part the builder stands in
+  is theirs; the rest gets a floor of `marker-block` at `marker-y`, only where there is air. The choice is saved in
+  `plugins/CloudeWars/symmetry/<arena>.yml` and becomes a `Layout`: the build `Region`, the rest, and one
+  `CopyRule` per copy (quarters: turned by 90, 180, 270 degrees; half mirror: mirrored across the line with
+  `BlockData.mirror`, which also swaps door hinges; half central: turned by 180 degrees). `syncSymmetry`
+  (`SymmetryCopy`) copies every block column of the build part (world bottom to the highest block of the source or
+  target column, air too) by those rules, a slice of columns per tick (20 ms); block entities are copied with
+  `BlockState.copy(Location)` so chests and signs keep their contents. Team block marks in the rest of the map are
+  replaced: team N in the build part becomes N + k * (highest team number in the build part) in copy k, and
+  numbers above `team-numbers` are left out with a message. Entities (armor stands, item frames) are not copied.
+  Symmetry with a middle block line (`middle`) does not exist yet.
 - **Random team colors** (`me.sirsz.cloudewars.teams.TeamColorRandomizer`, `random-team-colors` in `cloudewars.yml`):
   when a game starts, every team gets a different random color from `team-colors` for this round, and its bed is
   repainted. New Bedwars has no team chooser, so only the colors change, not who plays with whom. `Team` keeps the

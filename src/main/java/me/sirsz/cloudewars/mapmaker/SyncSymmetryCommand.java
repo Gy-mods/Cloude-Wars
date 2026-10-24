@@ -6,7 +6,7 @@ import java.util.List;
 import me.sirsz.cloudewars.CloudeWars;
 import org.bukkit.entity.Player;
 
-/** /bw syncSymmetry (setup mode): copies the build quarter to the other three quarters. */
+/** /bw syncSymmetry (setup mode): copies the build part (quarter or half) to the rest of the map. */
 public final class SyncSymmetryCommand extends SubCommand {
 
     @Override
@@ -16,7 +16,7 @@ public final class SyncSymmetryCommand extends SubCommand {
 
     @Override
     public String getDescription() {
-        return "Copy your build quarter to the other three quarters, turned to face the right way.";
+        return "Copy your build quarter or half to the rest of the map, turned or mirrored the right way.";
     }
 
     @Override

@@ -50,18 +50,24 @@ trims:
     blue: lapis
     purple: amethyst
 
-# Map maker symmetry: build one quarter of a map and let Cloude Wars copy it to the other three, turned around the
-# map's middle (the corner between blocks at x 0, z 0, where /bw arena create and /bw arena setup put you).
-#   /bw setBuildSymmetry quarter nomiddle [size]  (setup mode) the quarter you stand in becomes yours; the other three
-#                                                 get a floor, so you can see where your quarter ends
-#   /bw syncSymmetry                              copies your quarter (every height) to the other three: blocks turn
-#                                                 with the map (stairs, beds, logs...), chests and signs keep their
-#                                                 contents, and team blocks go to the next teams (#1# -> #2#, #3#, #4#;
-#                                                 with #1# and #2# in your quarter: #3#/#4#, #5#/#6#, #7#/#8#)
+# Map maker symmetry: build one part of a map and let Cloude Wars copy it to the rest, around the map's middle (the
+# corner between blocks at x 0, z 0, where /bw arena create and /bw arena setup put you). The map is 2*size x 2*size.
+#   /bw setBuildSymmetry quarter nomiddle [size]               4 teams: you build a quarter (size x size), the copies
+#                                                              are turned by 90, 180 and 270 degrees
+#   /bw setBuildSymmetry half nomiddle <mirror|central> [size] 2 teams: you build a half (2*size x size, split at z 0
+#                                                              or x 0, whichever line you stand farther from). mirror:
+#                                                              the copy is mirrored across the line; central: it is
+#                                                              turned by 180 degrees, so both teams have the same
+#                                                              things on the same side (the ender chest on the right)
+# The part you stand in becomes yours; the rest of the map gets a floor, so you can see where your part ends.
+#   /bw syncSymmetry   copies your part (every height) to the rest: blocks turn or flip with it (stairs, beds,
+#                      logs...), chests and signs keep their contents, and team blocks go to the next teams
+#                      (quarters: #1# -> #2#, #3#, #4#; halves: #1# -> #2#; with #1# and #2# in your part the copies
+#                      get #3#/#4#, ...)
 symmetry:
-  # Quarter size in blocks when the command gives none: each quarter is size x size, the whole map 2*size x 2*size
+  # Size in blocks when the command gives none
   default-size: 64
-  # The floor laid in the other three quarters (it only fills air, and syncSymmetry replaces it with your copies)
+  # The floor laid in the rest of the map (it only fills air, and syncSymmetry replaces it with your copies)
   marker-block: terracotta
   marker-y: 64
 
@@ -78,7 +84,7 @@ snow-golem:
 
 # {piece} = helmet/chestplate/leggings/boots, {trim} = the trim pattern, {trims} = every pattern,
 # {colors} = the team colors from team-colors, {team} = a team number, {max} = the highest team number (or size),
-# {quarter} = the build quarter, {x}/{z} = its block range, {block}/{y} = the floor, {blocks} = changed blocks,
+# {part} = the build part, {x}/{z} = its block range, {block}/{y} = the floor, {blocks} = changed blocks,
 # {teamblocks} = copied team blocks, {count} = team blocks left out, {percent} = how much is copied
 messages:
   team-block-marked: "&7Team &e{team} &7block"
@@ -88,14 +94,15 @@ messages:
   team-color-not-allowed: "&cCloude Wars only supports these team colors: {colors}"
   proxy-arena-unavailable: "&cThis arena is not available right now, sending you back to the lobby."
   proxy-game-running: "&cA game is already running here, sending you back to the lobby."
-  symmetry-usage: "&cUsage: /bw setBuildSymmetry quarter nomiddle [size]"
-  symmetry-not-available: "&cOnly 'quarter nomiddle' is available for now."
+  symmetry-usage: "&cUsage: /bw setBuildSymmetry quarter nomiddle [size] or /bw setBuildSymmetry half nomiddle <mirror|central> [size]"
+  symmetry-not-available: "&cOnly 'quarter nomiddle' and 'half nomiddle' are available for now."
+  symmetry-half-type: "&cA half is 'mirror' or 'central': /bw setBuildSymmetry half nomiddle <mirror|central> [size]"
   symmetry-bad-size: "&cThe size must be a whole number from 1 to {max}."
-  symmetry-set: "&aYour quarter is the &e{quarter} &aone (x {x}, z {z}). The other three got a {block} floor at y {y}. Copy your quarter with &e/bw syncSymmetry&a."
-  symmetry-none: "&cThis arena has no build symmetry yet: start with /bw setBuildSymmetry quarter nomiddle [size]"
-  symmetry-busy: "&cYour quarter is already being copied."
-  symmetry-progress: "&7Copying your quarter... &e{percent}%"
-  symmetry-synced: "&aCopied your quarter to the other three: {blocks} blocks changed, {teamblocks} team blocks."
+  symmetry-set: "&aYou build the &e{part} &a(x {x}, z {z}). The rest of the map got a {block} floor at y {y}. Copy your part with &e/bw syncSymmetry&a."
+  symmetry-none: "&cThis arena has no build symmetry yet: start with /bw setBuildSymmetry"
+  symmetry-busy: "&cYour part of the map is already being copied."
+  symmetry-progress: "&7Copying your part of the map... &e{percent}%"
+  symmetry-synced: "&aCopied your part to the rest of the map: {blocks} blocks changed, {teamblocks} team blocks."
   symmetry-team-blocks-skipped: "&c{count} team block copies were left out: there is no team above {max}."
   trim-set: "&aYour {piece} trim is now &e{trim}&a."
   trim-removed: "&aRemoved the trim from your {piece}."

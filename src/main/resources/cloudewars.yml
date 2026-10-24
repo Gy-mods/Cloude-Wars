@@ -5,6 +5,10 @@
 # (an empty list allows every color). Arenas that already have other colors still load.
 team-colors: [white, black, red, orange, yellow, lime, blue, purple]
 
+# Random team colors: when a game starts, every team gets a different random color from team-colors, and team names
+# on screen follow the color ("Lime"). The colors an arena was set up with only number its teams (see team-numbers).
+random-team-colors: true
+
 # The wood type of each team color (keys as in team-colors). Oak planks bought in the shop come as the buyer's
 # team planks, e.g. red buys mangrove planks.
 team-wood:
@@ -45,6 +49,17 @@ trims:
     lime: emerald
     blue: lapis
     purple: amethyst
+
+# The snow golem from the shop's Misc page (a snow golem egg, 5 gold by default; price and page are set in
+# data/items.yml and the shop file). It throws snowballs at enemies that knock them back, never hits its own team,
+# and when it falls into the void it comes back next to its owner with the same health.
+snow-golem:
+  # Walking speed compared to a normal snow golem (1 = normal)
+  speed: 1.5
+  # Snowballs per second (a normal snow golem throws 1)
+  snowballs-per-second: 5
+  # How hard each snowball pushes an enemy (0.4 = like a hit, 0 = no push)
+  knockback: 0.4
 
 # {piece} = helmet/chestplate/leggings/boots, {trim} = the trim pattern, {trims} = every pattern,
 # {colors} = the team colors from team-colors, {team} = a team number, {max} = the highest team number

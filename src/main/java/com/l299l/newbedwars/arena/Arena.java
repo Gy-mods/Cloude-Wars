@@ -698,6 +698,7 @@ public class Arena implements IArena {
         setup = Setup.NO_SETUP;
         gameStatus = GameStatus.restarting;
         DecoUtils.summonAllArmorStands(this);
+        me.sirsz.cloudewars.CloudeWars.onArenaDisabled(this);
     }
 
     @Override
@@ -1127,7 +1128,7 @@ public class Arena implements IArena {
             EnderDragon dragon = (EnderDragon) world.spawnEntity(spawnLoc, EntityType.ENDER_DRAGON);
             dragon.setInvulnerable(true);
             dragon.setPhase(EnderDragon.Phase.CIRCLING);
-            dragon.setCustomName(team.getColor() + team.getName() + " Dragon");
+            dragon.setCustomName(team.getColor() + team.getDisplayName() + " Dragon");
             dragon.setCustomNameVisible(true);
             teamDragons.put(team, dragon);
             anySpawned = true;
@@ -1562,9 +1563,9 @@ public class Arena implements IArena {
 
     private void sendWinMessage(Team team) {
         broadcast("GameEnded", new HashMap<String, String>() {{
-            put("/team/", team.getName());
+            put("/team/", team.getDisplayName());
         }});
-        broadcastTitle("&6&lGame Ended!", "&e" + team.getColor() + team.getName() + " &fwins!", 10, 40, 10);
+        broadcastTitle("&6&lGame Ended!", "&e" + team.getColor() + team.getDisplayName() + " &fwins!", 10, 40, 10);
         Color teamColor = Color.WHITE;
         for (Player player : team.getPlayers()) {
             Location loc = player.getLocation();

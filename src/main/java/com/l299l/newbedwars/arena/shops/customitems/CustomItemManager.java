@@ -182,6 +182,7 @@ public class CustomItemManager {
             case IRON_GOLEM -> new IronGolemLogic();
             case SILVERFISH -> new SilverfishLogic();
             case PORTABLE_TOWER -> new PortableTowerLogic();
+            case SNOW_GOLEM -> new me.sirsz.cloudewars.items.SnowGolemLogic();
             default -> new NoneLogic();
         };
     }

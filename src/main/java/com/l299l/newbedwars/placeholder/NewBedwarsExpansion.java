@@ -88,7 +88,7 @@ public class NewBedwarsExpansion extends PlaceholderExpansion {
             case "team": {
                 if (arena == null) return "";
                 Team team = arena.getTeam(player);
-                return team != null ? team.getName() : "";
+                return team != null ? team.getDisplayName() : "";
             }
             case "team_color": {
                 if (arena == null) return "";

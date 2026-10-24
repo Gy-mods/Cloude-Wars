@@ -5,11 +5,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 import me.sirsz.cloudewars.TeamColors;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Bed;
+import org.bukkit.block.data.type.Door;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.Nullable;
@@ -101,6 +107,38 @@ public final class TeamBlocks {
         // Crimson and warped have stems and hyphae, bamboo has blocks instead of logs and wood
         Material nether = find(stripped + wood + "_" + (part.equals("LOG") ? "STEM" : "HYPHAE"));
         return nether != null ? nether : find(stripped + wood + "_BLOCK");
+    }
+
+    /** Sets a block to new block data; a bed or door takes its second half along, converted by the same rule. */
+    public static void setWithOtherHalf(Block block, BlockData data, Function<BlockData, @Nullable BlockData> convertOtherHalf) {
+        Block otherHalf = otherHalf(block, block.getBlockData());
+        block.setBlockData(data, false);
+        if (otherHalf != null) {
+            BlockData otherData = convertOtherHalf.apply(otherHalf.getBlockData());
+            if (otherData != null) {
+                otherHalf.setBlockData(otherData, false);
+            }
+        }
+    }
+
+    /** A bed of this color with the same direction and half as the given bed, or null if there is no such bed. */
+    public static @Nullable BlockData coloredBed(BlockData bed, String colorName) {
+        Material target = find(colorName.toUpperCase(Locale.ROOT) + "_BED");
+        if (!(bed instanceof Bed) || target == null) {
+            return null;
+        }
+        return Bukkit.createBlockData(target, bed.getAsString().substring(bed.getMaterial().getKey().toString().length()));
+    }
+
+    /** The second block of a bed or door. */
+    private static @Nullable Block otherHalf(Block block, BlockData data) {
+        if (data instanceof Bed bed) {
+            return block.getRelative(bed.getPart() == Bed.Part.FOOT ? bed.getFacing() : bed.getFacing().getOppositeFace());
+        }
+        if (data instanceof Door door) {
+            return block.getRelative(door.getHalf() == Bisected.Half.BOTTOM ? BlockFace.UP : BlockFace.DOWN);
+        }
+        return null;
     }
 
     private static @Nullable Material find(String name) {

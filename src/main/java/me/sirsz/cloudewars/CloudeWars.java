@@ -2,6 +2,9 @@ package me.sirsz.cloudewars;
 
 import com.l299l.newbedwars.arena.Arena;
 import com.l299l.newbedwars.arena.IArena;
+import com.l299l.newbedwars.arena.shops.customitems.CustomItemManager;
+import com.l299l.newbedwars.arena.shops.customitems.PriceType;
+import com.l299l.newbedwars.arena.shops.customitems.customitemlogic.OnBuyEvent;
 import com.l299l.newbedwars.arena.team.Team;
 import com.l299l.newbedwars.commands.bedwars.SubCommand;
 import java.io.File;
@@ -9,15 +12,20 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import me.sirsz.cloudewars.cosmetics.ArmorTrims;
 import me.sirsz.cloudewars.cosmetics.TrimCommand;
+import me.sirsz.cloudewars.items.SnowGolemLogic;
+import me.sirsz.cloudewars.items.SnowGolems;
 import me.sirsz.cloudewars.proxy.ProxyMode;
 import me.sirsz.cloudewars.teams.TeamBlockMarks;
 import me.sirsz.cloudewars.teams.TeamBlocks;
+import me.sirsz.cloudewars.teams.TeamColorRandomizer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
@@ -43,8 +51,12 @@ public final class CloudeWars {
     private static @Nullable ArmorTrims trims;
     private static @Nullable TeamBlocks teamBlocks;
     private static @Nullable TeamBlockMarks teamBlockMarks;
+    private static @Nullable TeamColorRandomizer randomizer;
+    private static @Nullable SnowGolems snowGolems;
     private static List<String> teamColorNames = List.of();
     private static Set<ChatColor> teamColors = EnumSet.noneOf(ChatColor.class);
+    /** The team-colors name of each team color, e.g. GOLD -> "orange". */
+    private static Map<ChatColor, String> colorNamesByColor = new EnumMap<>(ChatColor.class);
 
     private CloudeWars() {
     }
@@ -56,12 +68,30 @@ public final class CloudeWars {
     public static void reload(JavaPlugin plugin) {
         config = loadConfig(plugin);
         loadTeamColors(plugin);
+        randomizer = new TeamColorRandomizer(plugin, config.getBoolean("random-team-colors"), teamColorNames);
         teamBlocks = new TeamBlocks(plugin, section("team-wood"));
         teamBlockMarks = new TeamBlockMarks(plugin, teamBlocks, loadTeamNumbers(plugin));
         plugin.getServer().getPluginManager().registerEvents(teamBlockMarks, plugin);
         trims = new ArmorTrims(plugin, section("trims.materials"));
+        snowGolems = new SnowGolems(plugin, config);
+        plugin.getServer().getPluginManager().registerEvents(snowGolems, plugin);
         proxyMode = new ProxyMode(plugin, config);
         proxyMode.enable();
+    }
+
+    /**
+     * Hook at the end of {@code ItemsDataManager.load()}: adds Cloude Wars' shop items that the item list does not
+     * have yet (data/items.yml of an existing server), so they can be put into the shop pages.
+     */
+    public static void addItems(CustomItemManager items) {
+        if (items.getCustomItem(SnowGolems.ITEM_NAME) == null) {
+            items.createCustomItem(SnowGolems.ITEM_NAME, Material.SNOW_GOLEM_SPAWN_EGG, 5, PriceType.GOLD, 1,
+                    new SnowGolemLogic(), OnBuyEvent.GIVE_ITEM);
+        }
+    }
+
+    public static @Nullable SnowGolems snowGolems() {
+        return snowGolems;
     }
 
     /** Hook in {@code MainCommand.setSubCommands()}: adds Cloude Wars' /bw subcommands for players. */
@@ -71,11 +101,30 @@ public final class CloudeWars {
         gameCommands.add(trim);
     }
 
-    /** Hook in {@code Arena.start()}, before the teams start: turns the map's team blocks into their teams' versions. */
+    /**
+     * Hook in {@code Arena.start()}, before the teams start: gives the teams their random colors for this round,
+     * then turns the map's team blocks into their teams' versions.
+     */
     public static void onGameStart(IArena arena) {
+        if (randomizer != null) {
+            randomizer.randomize(arena);
+        }
         if (teamBlockMarks != null) {
             teamBlockMarks.recolor(arena);
         }
+    }
+
+    /** Hook at the end of {@code Arena.disable()}: setup shows the teams with their saved colors again. */
+    public static void onArenaDisabled(IArena arena) {
+        if (randomizer != null) {
+            randomizer.clear(arena);
+        }
+    }
+
+    /** The team-colors name of a team color ("orange" for GOLD), or null if it is none of them. */
+    @SuppressWarnings("deprecation")
+    public static @Nullable String colorName(ChatColor color) {
+        return colorNamesByColor.get(color);
     }
 
     /** Hook in {@code Arena.leave()}, right after New Bedwars moved the player to this server's lobby location. */
@@ -161,6 +210,7 @@ public final class CloudeWars {
     private static void loadTeamColors(JavaPlugin plugin) {
         List<String> names = new ArrayList<>();
         Set<ChatColor> colors = EnumSet.noneOf(ChatColor.class);
+        Map<ChatColor, String> namesByColor = new EnumMap<>(ChatColor.class);
         for (String name : config.getStringList("team-colors")) {
             ChatColor color = TeamColors.fromName(name);
             if (color == null) {
@@ -169,9 +219,11 @@ public final class CloudeWars {
             }
             names.add(name);
             colors.add(color);
+            namesByColor.put(color, name.toLowerCase(Locale.ROOT));
         }
         teamColorNames = List.copyOf(names);
         teamColors = colors;
+        colorNamesByColor = namesByColor;
     }
 
     /** A config section, from the jar's defaults when the server's cloudewars.yml does not have it yet. */

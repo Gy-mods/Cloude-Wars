@@ -61,6 +61,7 @@ public class ItemsDataManager {
             customItemManager.createDefaults();
             save();
         }
+        me.sirsz.cloudewars.CloudeWars.addItems(customItemManager);
     }
 
 

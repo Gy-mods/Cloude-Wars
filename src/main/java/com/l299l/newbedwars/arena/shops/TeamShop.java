@@ -66,7 +66,7 @@ public class TeamShop {
         }
         npc = (LivingEntity) location.getWorld().spawnEntity(location, entityType);
         npc.setInvulnerable(true);
-        npc.setCustomName(team.getColor() + team.getName() + " Shop");
+        npc.setCustomName(team.getColor() + team.getDisplayName() + " Shop");
         npc.setCustomNameVisible(true);
         npc.setSilent(true);
         npc.setGravity(false);

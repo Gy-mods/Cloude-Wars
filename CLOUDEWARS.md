@@ -8,7 +8,7 @@ its repository. The GitHub repository is [Gy-mods/Cloude-Wars](https://github.co
 ## What Cloude Wars changes
 
 - **Identity:** `plugin.yml` (name `CloudeWars`, authors, description) and `pom.xml` (artifact `CloudeWars`,
-  version `0.1.0-SNAPSHOT`). The Java packages stay `com.l299l.newbedwars`, so upstream updates merge cleanly.
+  release version). The Java packages stay `com.l299l.newbedwars`, so upstream updates merge cleanly.
 - **Paper 1.21.11 API and Java 21** instead of New Bedwars' Paper 1.17 / Java 16 (needed for trims). This renamed
   three constants in New Bedwars' code (`Particle.DUST`, `EntityType.FIREWORK_ROCKET`, `EntityType.TNT` in
   `Arena.java` and `ArenaGameplayEvents.java`) and moved SnakeYAML to 2.2, the version Paper ships.
@@ -26,9 +26,25 @@ its repository. The GitHub repository is [Gy-mods/Cloude-Wars](https://github.co
   the team color, oak blocks (planks, stairs, slabs, fences, logs, doors...) the team's wood. Directions and shapes
   are kept, beds and doors change both halves, and crimson/warped use stems and hyphae, bamboo uses bamboo blocks.
   Signs, banners, shulker boxes and shelves are not swapped (their contents would be lost). Maps store team numbers,
-  not colors: until random team colors exist, `team-numbers` in `cloudewars.yml` gives each number its color
-  (1 red, 2 blue, 3 lime, 4 yellow, 5 orange, 6 purple, 7 white, 8 black). The arena world reloads after every game,
-  which brings the placeholders back.
+  not colors: `team-numbers` in `cloudewars.yml` says which saved team color is which number (1 red, 2 blue, 3 lime,
+  4 yellow, 5 orange, 6 purple, 7 white, 8 black), and the block takes that team's color in this round. The arena
+  world reloads after every game, which brings the placeholders back.
+- **Random team colors** (`me.sirsz.cloudewars.teams.TeamColorRandomizer`, `random-team-colors` in `cloudewars.yml`):
+  when a game starts, every team gets a different random color from `team-colors` for this round, and its bed is
+  repainted. New Bedwars has no team chooser, so only the colors change, not who plays with whom. `Team` keeps the
+  saved color and name (`getBaseColor()`, `getName()`: the key for lookups and saving) next to the round's
+  (`getColor()`, `getDisplayName()`, set by `setRoundColor`, cleared by `clearRoundColor` when the arena is
+  disabled). Every on-screen team name uses `getDisplayName()`: scoreboard, chat, shop and upgrade NPCs, iron golem
+  names, bed destroyed and win messages, the dragon and the PlaceholderAPI expansion.
+- **Snow golem** (`me.sirsz.cloudewars.items.SnowGolems`, `snow-golem` in `cloudewars.yml`), like the snowman of
+  Hypixel SkyWars' Snowman kit: a snow golem egg on the shop's Misc page next to the iron golem and silverfish
+  (5 gold, `SnowGolem` in `data/items.yml`). It walks 1.5x as fast as a normal snow golem, only goes after enemy
+  players and throws 5 snowballs a second (the normal one plus extra ones from a task). Each snowball pushes the
+  enemy back (`knockback`; today's snowballs do not move players, so Cloude Wars pushes them) and flies through its
+  own team. Its team cannot hurt it, it does not melt or leave a snow trail, and when it falls below the arena's void
+  height it comes back on its owner's spot (the team spawn while the owner is dead) with the same health. New
+  logic type `SNOW_GOLEM` in `LogicType`; `CloudeWars.addItems` adds the item to an existing `data/items.yml`, but
+  existing shop files need `ci:SnowGolem` added by hand (new installs get it from `exampleShop.yml`).
 - **Armor trims** (`me.sirsz.cloudewars.cosmetics`): `/bw trim <helmet|chestplate|leggings|boots> <trim|none>` picks
   a trim pattern per armor piece, for everyone. The trim material comes from the team color (`trims.materials` in
   `cloudewars.yml`, keyed by the color names `/bw createTeam` takes: white, black, red, orange, yellow, lime, blue,
@@ -47,7 +63,10 @@ Cloude Wars code lives in `me.sirsz.cloudewars`. It is connected to New Bedwars 
 | Hook | Where | What it does |
 | --- | --- | --- |
 | `CloudeWars.reload(this)` | end of `NewBedwars.reloadAll()` | Loads `cloudewars.yml` and registers listeners (also after `/bw reload`, which unregisters all listeners) |
-| `CloudeWars.onGameStart(this)` | `Arena.start()`, before the teams start | Turns the map's team blocks into their teams' versions |
+| `CloudeWars.onGameStart(this)` | `Arena.start()`, before the teams start | Gives the teams their random colors, then turns the map's team blocks into their teams' versions |
+| `CloudeWars.onArenaDisabled(this)` | end of `Arena.disable()` | Gives the teams their saved colors back (for setup) |
+| `CloudeWars.addItems(customItemManager)` | end of `ItemsDataManager.load()` | Adds the snow golem to an existing `data/items.yml` |
+| `case SNOW_GOLEM -> new me.sirsz.cloudewars.items.SnowGolemLogic()` | `CustomItemManager.matchLogicType()` (also `SNOW_GOLEM` in `LogicType` and the iron golem/silverfish case of `ArenaGameplayEvents`) | Using the snow golem egg spawns the golem |
 | `CloudeWars.onArenaLeave(player)` | `Arena.leave()`, after the teleport to the lobby location | Proxy mode sends the player to the lobby server |
 | `CloudeWars.decorateArmor(player, team.getColor(), ...)` | `ArmorContents.loadPlayerArmorContents()` | Puts the player's trims on the armor New Bedwars hands out |
 | `CloudeWars.addPlayerCommands(...)` | `MainCommand.setSubCommands()`, before the help list is built | Adds `/bw trim` for players in the lobby and in games |

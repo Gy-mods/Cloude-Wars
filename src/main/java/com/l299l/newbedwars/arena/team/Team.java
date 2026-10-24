@@ -17,6 +17,9 @@ public class Team {
     private HashMap<UUID, ArmorContents> armorContents;
     private final ChatColor color;
     private final String name;
+    /** Cloude Wars: this round's random color and on-screen name (null = the saved color and name). */
+    private ChatColor roundColor;
+    private String roundName;
     private final IArena arena;
     private final ArrayList<Player> players;
     private TeamBed teamBed;
@@ -238,11 +241,32 @@ public class Team {
     }
 
     public ChatColor getColor() {
+        return roundColor != null ? roundColor : color;
+    }
+
+    /** The team's key (lookups, saving); on-screen texts use {@link #getDisplayName()}. */
+    public String getName() {
+        return name;
+    }
+
+    /** The color saved with the arena, whatever color the team has this round. */
+    public ChatColor getBaseColor() {
         return color;
     }
 
-    public String getName() {
-        return name;
+    public String getDisplayName() {
+        return roundName != null ? roundName : name;
+    }
+
+    /** Cloude Wars: gives the team a color and on-screen name for this round. */
+    public void setRoundColor(ChatColor roundColor, String roundName) {
+        this.roundColor = roundColor;
+        this.roundName = roundName;
+    }
+
+    public void clearRoundColor() {
+        this.roundColor = null;
+        this.roundName = null;
     }
 
     public Boolean isBedSet() {

@@ -113,7 +113,7 @@ public class IronGolemLogic implements CustomLogic {
         if (seconds > 90) timeColor = ChatColor.GREEN.toString();
         else if (seconds > 30) timeColor = ChatColor.YELLOW.toString();
         else timeColor = ChatColor.RED.toString();
-        return team.getColor() + team.getName() + " Golem "
+        return team.getColor() + team.getDisplayName() + " Golem "
                 + ChatColor.DARK_GRAY + "[" + timeColor + seconds + "s" + ChatColor.DARK_GRAY + "]";
     }
 

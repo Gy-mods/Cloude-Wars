@@ -694,7 +694,7 @@ public class ArenaGameplayEvents implements Listener {
                                     breakerGp.addBedBroken();
                                 }
                                 arena.broadcast("BedDestroyed", new HashMap<>() {{
-                                    put("/team/", team.getName());
+                                    put("/team/", team.getDisplayName());
                                     put("/destroyer/", p.getName());
                                 }});
                                 for (Player member : team.getPlayers()) {
@@ -802,7 +802,7 @@ public class ArenaGameplayEvents implements Listener {
                     if (effect != null) p.addPotionEffect(effect);
                 });
             }
-            case IRON_GOLEM, SILVERFISH -> {
+            case IRON_GOLEM, SILVERFISH, SNOW_GOLEM -> {
                 e.setCancelled(true);
                 boolean success = customItem.getEvent().perform(p, arena);
                 if (success) {

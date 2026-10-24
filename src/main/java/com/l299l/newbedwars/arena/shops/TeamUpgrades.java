@@ -78,7 +78,7 @@ public class TeamUpgrades {
         }
         npc = (LivingEntity) location.getWorld().spawnEntity(location, entityType);
         npc.setInvulnerable(true);
-        npc.setCustomName(team.getColor() + team.getName() + " Upgrades");
+        npc.setCustomName(team.getColor() + team.getDisplayName() + " Upgrades");
         npc.setCustomNameVisible(true);
         npc.setSilent(true);
         npc.setGravity(false);
@@ -139,7 +139,7 @@ public class TeamUpgrades {
             }
             for (Player ally : team.getPlayers()) {
                 String alarmMsg = NewBedwars.plugin.getMessages().getMsg(ally, "AlarmTrapTriggered");
-                if (alarmMsg != null) ally.sendMessage(alarmMsg.replace("/team/", team.getName()));
+                if (alarmMsg != null) ally.sendMessage(alarmMsg.replace("/team/", team.getDisplayName()));
             }
         }
         if (upgrades.getOrDefault(Upgrade.BLINDTRAP, 0) > 0) {

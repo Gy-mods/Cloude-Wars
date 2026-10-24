@@ -9,16 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.l299l.newbedwars.arena.team.Team;
 import me.sirsz.cloudewars.CloudeWars;
+import me.sirsz.cloudewars.TeamColors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.Bed;
-import org.bukkit.block.data.type.Door;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -114,36 +113,34 @@ public final class TeamBlockMarks implements Listener {
         World world = arena.getArenaWorld();
         arenaMarks(arena).forEach((pos, team) -> {
             if (team >= 1 && team <= teamColors.size()) {
-                recolor(world.getBlockAt(pos.x(), pos.y(), pos.z()), teamColors.get(team - 1));
+                recolor(world.getBlockAt(pos.x(), pos.y(), pos.z()), colorOfTeamNumber(arena, team));
             }
         });
     }
 
+    /**
+     * The color team &lt;number&gt; has this round: team 1 is the arena team created with the first color of
+     * team-numbers, whatever color the randomizer gave it. Without such a team the number keeps that first color.
+     */
+    @SuppressWarnings("deprecation") // New Bedwars' team colors are org.bukkit.ChatColor
+    private String colorOfTeamNumber(IArena arena, int number) {
+        String numberColor = teamColors.get(number - 1);
+        ChatColor baseColor = TeamColors.fromName(numberColor);
+        for (Team team : arena.getTeams().values()) {
+            if (team.getBaseColor() == baseColor) {
+                String roundColor = CloudeWars.colorName(team.getColor());
+                return roundColor != null ? roundColor : numberColor;
+            }
+        }
+        return numberColor;
+    }
+
     private void recolor(Block block, String colorName) {
-        BlockData placeholder = block.getBlockData();
-        BlockData team = teamBlocks.teamData(placeholder, colorName);
+        BlockData team = teamBlocks.teamData(block.getBlockData(), colorName);
         if (team == null) {
             return; // the placeholder was removed or replaced since it was marked
         }
-        Block otherHalf = otherHalf(block, placeholder);
-        block.setBlockData(team, false);
-        if (otherHalf != null) {
-            BlockData otherTeam = teamBlocks.teamData(otherHalf.getBlockData(), colorName);
-            if (otherTeam != null) {
-                otherHalf.setBlockData(otherTeam, false);
-            }
-        }
-    }
-
-    /** The second block of a bed or door, which has to change together with the marked one. */
-    private static @Nullable Block otherHalf(Block block, BlockData data) {
-        if (data instanceof Bed bed) {
-            return block.getRelative(bed.getPart() == Bed.Part.FOOT ? bed.getFacing() : bed.getFacing().getOppositeFace());
-        }
-        if (data instanceof Door door) {
-            return block.getRelative(door.getHalf() == Bisected.Half.BOTTOM ? BlockFace.UP : BlockFace.DOWN);
-        }
-        return null;
+        TeamBlocks.setWithOtherHalf(block, team, otherHalf -> teamBlocks.teamData(otherHalf, colorName));
     }
 
     /** The arena the player is setting up in this world, or null if they are not in setup mode here. */

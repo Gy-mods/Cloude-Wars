@@ -20,8 +20,13 @@ Cloude Wars is built on [New Bedwars](https://github.com/l299l/NewBedwars-Free) 
 - **Armor trims**: `/bw trim <helmet|chestplate|leggings|boots> <trim>` picks a trim pattern for each armor piece.
   The trim material comes from your team color (white = quartz, black = netherite, red = redstone, orange = resin,
   yellow = gold, lime = emerald, blue = lapis, purple = amethyst), and it stays on armor upgrades too.
+- **Random team colors**: every game, each team gets a random color from the 8, so there aren't always the same
+  four teams. Beds, team blocks, armor, wood and trims follow the color.
+- **Snow golem**: a snow golem egg for 5 gold on the shop's Misc page. Like the snowman from Hypixel SkyWars'
+  Snowman kit, it's faster than a normal one, throws snowballs 5x as fast (they knock enemies back), and if it falls
+  into the void it comes back next to you with the same health.
 
-More is coming: team upgrades and the rest of the map maker (symmetry, random team colors).
+More is coming: team upgrades and the rest of the map maker (symmetry).
 
 ## Supported versions
 

@@ -141,7 +141,7 @@ public class ScoreboardManager {
     }
 
     private String getTeamID(Team team) {
-        return team.getColor().toString() + team.getName().substring(0, 1).toUpperCase() + " " + ChatColor.WHITE + team.getName();
+        return team.getColor().toString() + team.getDisplayName().substring(0, 1).toUpperCase() + " " + ChatColor.WHITE + team.getDisplayName();
     }
 
     private String getTeamBedInfo(Team team) {

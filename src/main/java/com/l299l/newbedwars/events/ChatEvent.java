@@ -52,7 +52,7 @@ public class ChatEvent implements Listener {
             String formatted = ChatColor.translateAlternateColorCodes('&',
                     plugin.getMessages().getMsg(sender, "TeamChatFormat")
                             .replace("/player/", sender.getName())
-                            .replace("/team/", team.getName())
+                            .replace("/team/", team.getDisplayName())
                             .replace("/message/", stripped));
             for (Player member : team.getPlayers()) {
                 member.sendMessage(formatted);

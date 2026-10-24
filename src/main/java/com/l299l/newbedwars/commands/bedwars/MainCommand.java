@@ -256,6 +256,7 @@ public class MainCommand implements TabExecutor {
         setupSubAdvencedCommands.add(new SetTeamsAccessoriesCommand());
 
         setupSubAutomaticCommands.add(new StartAutomaticSetupCommand());
+        me.sirsz.cloudewars.CloudeWars.addSetupCommands(setupSubBasicCommands);
         setupSubBasicCommands.add(new SetupHelpCommand(joinedSubSubCommands()));
 
 

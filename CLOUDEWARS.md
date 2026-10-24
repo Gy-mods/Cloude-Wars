@@ -28,7 +28,20 @@ its repository. The GitHub repository is [Gy-mods/Cloude-Wars](https://github.co
   Signs, banners, shulker boxes and shelves are not swapped (their contents would be lost). Maps store team numbers,
   not colors: `team-numbers` in `cloudewars.yml` says which saved team color is which number (1 red, 2 blue, 3 lime,
   4 yellow, 5 orange, 6 purple, 7 white, 8 black), and the block takes that team's color in this round. The arena
-  world reloads after every game, which brings the placeholders back.
+  world reloads after every game, which brings the placeholders back. The color swap goes by block name (`WHITE_...`
+  becomes `<COLOR>_...`), so new white blocks work without code changes, like 26.3's wool and concrete slabs and
+  stairs (tested in a 26.3 game).
+- **Symmetry** (`me.sirsz.cloudewars.mapmaker`, `symmetry` in `cloudewars.yml`): `/bw setBuildSymmetry quarter
+  nomiddle [size]` and `/bw syncSymmetry`, in every setup mode. The map's middle is the block corner at x 0, z 0
+  (New Bedwars starts every setup at 0, 100, 0) and the quarters split there with no middle block line (`Quarter`).
+  The quarter the builder stands in is theirs; the other three get a floor of `marker-block` at `marker-y`, only
+  where there is air. The choice is saved in `plugins/CloudeWars/symmetry/<arena>.yml`. `syncSymmetry`
+  (`QuarterCopy`) copies every block column of the build quarter (world bottom to the highest block of the source
+  or target column, air too) turned by 90, 180 and 270 degrees clockwise, a slice of columns per tick (20 ms), with
+  `BlockData.rotate`; block entities are copied with `BlockState.copy(Location)` so chests and signs keep their
+  contents. Team block marks in the other quarters are replaced: team N in the build quarter becomes
+  N + k * (highest team number in the build quarter) in copy k, and numbers above `team-numbers` are left out with
+  a message. Entities (armor stands, item frames) are not copied. Only `quarter nomiddle` exists so far.
 - **Random team colors** (`me.sirsz.cloudewars.teams.TeamColorRandomizer`, `random-team-colors` in `cloudewars.yml`):
   when a game starts, every team gets a different random color from `team-colors` for this round, and its bed is
   repainted. New Bedwars has no team chooser, so only the colors change, not who plays with whom. `Team` keeps the
@@ -70,6 +83,7 @@ Cloude Wars code lives in `me.sirsz.cloudewars`. It is connected to New Bedwars 
 | `CloudeWars.onArenaLeave(player)` | `Arena.leave()`, after the teleport to the lobby location | Proxy mode sends the player to the lobby server |
 | `CloudeWars.decorateArmor(player, team.getColor(), ...)` | `ArmorContents.loadPlayerArmorContents()` | Puts the player's trims on the armor New Bedwars hands out |
 | `CloudeWars.addPlayerCommands(...)` | `MainCommand.setSubCommands()`, before the help list is built | Adds `/bw trim` for players in the lobby and in games |
+| `CloudeWars.addSetupCommands(setupSubBasicCommands)` | `MainCommand.setSubCommands()`, before the setup help is built | Adds `/bw setBuildSymmetry` and `/bw syncSymmetry` to every setup mode |
 | `CloudeWars.teamMaterial(player, material)` | `CustomItem.getItem()` and `getIcon(Player)`, after the wool swap | Shop oak planks become the team's planks |
 | `CloudeWars.checkTeamColor(player, color)` | `CreateTeamCommand.perform()`, after parsing the color | Refuses colors outside `team-colors` |
 | `CloudeWars.teamColorNames()` | `CreateTeamCommand.getSubcommandArguments()` | Tab completion lists only the allowed colors |

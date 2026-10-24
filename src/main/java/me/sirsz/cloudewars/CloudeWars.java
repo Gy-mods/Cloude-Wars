@@ -22,6 +22,9 @@ import me.sirsz.cloudewars.cosmetics.ArmorTrims;
 import me.sirsz.cloudewars.cosmetics.TrimCommand;
 import me.sirsz.cloudewars.items.SnowGolemLogic;
 import me.sirsz.cloudewars.items.SnowGolems;
+import me.sirsz.cloudewars.mapmaker.BuildSymmetry;
+import me.sirsz.cloudewars.mapmaker.SetBuildSymmetryCommand;
+import me.sirsz.cloudewars.mapmaker.SyncSymmetryCommand;
 import me.sirsz.cloudewars.proxy.ProxyMode;
 import me.sirsz.cloudewars.teams.TeamBlockMarks;
 import me.sirsz.cloudewars.teams.TeamBlocks;
@@ -53,6 +56,7 @@ public final class CloudeWars {
     private static @Nullable TeamBlockMarks teamBlockMarks;
     private static @Nullable TeamColorRandomizer randomizer;
     private static @Nullable SnowGolems snowGolems;
+    private static @Nullable BuildSymmetry symmetry;
     private static List<String> teamColorNames = List.of();
     private static Set<ChatColor> teamColors = EnumSet.noneOf(ChatColor.class);
     /** The team-colors name of each team color, e.g. GOLD -> "orange". */
@@ -72,6 +76,7 @@ public final class CloudeWars {
         teamBlocks = new TeamBlocks(plugin, section("team-wood"));
         teamBlockMarks = new TeamBlockMarks(plugin, teamBlocks, loadTeamNumbers(plugin));
         plugin.getServer().getPluginManager().registerEvents(teamBlockMarks, plugin);
+        symmetry = new BuildSymmetry(plugin, teamBlockMarks, config);
         trims = new ArmorTrims(plugin, section("trims.materials"));
         snowGolems = new SnowGolems(plugin, config);
         plugin.getServer().getPluginManager().registerEvents(snowGolems, plugin);
@@ -94,11 +99,21 @@ public final class CloudeWars {
         return snowGolems;
     }
 
+    public static @Nullable BuildSymmetry symmetry() {
+        return symmetry;
+    }
+
     /** Hook in {@code MainCommand.setSubCommands()}: adds Cloude Wars' /bw subcommands for players. */
     public static void addPlayerCommands(List<SubCommand> lobbyCommands, List<SubCommand> gameCommands) {
         TrimCommand trim = new TrimCommand();
         lobbyCommands.add(trim);
         gameCommands.add(trim);
+    }
+
+    /** Hook in {@code MainCommand.setSubCommands()}, before the setup help is built: adds the map maker's commands. */
+    public static void addSetupCommands(List<SubCommand> setupCommands) {
+        setupCommands.add(new SetBuildSymmetryCommand());
+        setupCommands.add(new SyncSymmetryCommand());
     }
 
     /**

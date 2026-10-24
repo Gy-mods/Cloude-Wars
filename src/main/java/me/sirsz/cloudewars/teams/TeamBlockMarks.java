@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.l299l.newbedwars.arena.team.Team;
+import me.sirsz.cloudewars.BlockPos;
 import me.sirsz.cloudewars.CloudeWars;
 import me.sirsz.cloudewars.TeamColors;
 import net.kyori.adventure.text.Component;
@@ -40,26 +41,6 @@ public final class TeamBlockMarks implements Listener {
 
     private static final Pattern TEAM_NAME = Pattern.compile("^#(\\d+)#");
     private static final String FOLDER = "teamblocks";
-
-    private record BlockPos(int x, int y, int z) {
-        static BlockPos of(Block block) {
-            return new BlockPos(block.getX(), block.getY(), block.getZ());
-        }
-
-        static @Nullable BlockPos parse(String text) {
-            String[] parts = text.split(",");
-            try {
-                return new BlockPos(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
-            } catch (RuntimeException e) {
-                return null;
-            }
-        }
-
-        @Override
-        public String toString() {
-            return x + "," + y + "," + z;
-        }
-    }
 
     private final JavaPlugin plugin;
     private final TeamBlocks teamBlocks;
@@ -116,6 +97,24 @@ public final class TeamBlockMarks implements Listener {
                 recolor(world.getBlockAt(pos.x(), pos.y(), pos.z()), colorOfTeamNumber(arena, team));
             }
         });
+    }
+
+    /** The arena's team blocks (a copy): position -> team number. */
+    public Map<BlockPos, Integer> marks(IArena arena) {
+        return new HashMap<>(arenaMarks(arena));
+    }
+
+    /** Replaces all of the arena's team blocks (the map maker's symmetry copies them) and saves them. */
+    public void setMarks(IArena arena, Map<BlockPos, Integer> newMarks) {
+        Map<BlockPos, Integer> arenaMarks = arenaMarks(arena);
+        arenaMarks.clear();
+        arenaMarks.putAll(newMarks);
+        save(arena);
+    }
+
+    /** The highest team number a team block can have (the length of team-numbers). */
+    public int teamCount() {
+        return teamColors.size();
     }
 
     /**

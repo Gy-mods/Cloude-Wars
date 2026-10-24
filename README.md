@@ -16,7 +16,14 @@ Cloude Wars is built on [New Bedwars](https://github.com/l299l/NewBedwars-Free) 
   red = mangrove, orange = acacia, yellow = bamboo, lime = jungle, blue = warped, purple = crimson).
 - **Team blocks** (map maker): while building an arena, rename white wool, terracotta, concrete, glass, oak planks,
   stairs, logs and so on to `#<team>#...` (for example `#1#wall#`) in an anvil and place them. When a game starts
-  they turn into that team's color or wood, so a map stores team numbers instead of colors.
+  they turn into that team's color or wood, so a map stores team numbers instead of colors. On 26.3 and newer this
+  includes the new wool and concrete slabs and stairs.
+- **Symmetry** (map maker): build only one quarter of a 4-team map and let Cloude Wars copy it. Stand in the quarter
+  you want to build and type `/bw setBuildSymmetry quarter nomiddle [size]` (each quarter is size x size blocks
+  around x 0, z 0; the other three quarters get a terracotta floor at y 64). When you're done, `/bw syncSymmetry`
+  copies your quarter to the other three, turned the right way: stairs, beds, logs and so on face the right
+  direction, chests and signs keep their contents, and team blocks go to the next teams (`#1#` becomes `#2#`,
+  `#3#`, `#4#`).
 - **Armor trims**: `/bw trim <helmet|chestplate|leggings|boots> <trim>` picks a trim pattern for each armor piece.
   The trim material comes from your team color (white = quartz, black = netherite, red = redstone, orange = resin,
   yellow = gold, lime = emerald, blue = lapis, purple = amethyst), and it stays on armor upgrades too.
@@ -26,7 +33,8 @@ Cloude Wars is built on [New Bedwars](https://github.com/l299l/NewBedwars-Free) 
   Snowman kit, it's faster than a normal one, throws snowballs 5x as fast (they knock enemies back), and if it falls
   into the void it comes back next to you with the same health.
 
-More is coming: team upgrades and the rest of the map maker (symmetry).
+More is coming: team upgrades and the rest of the map maker (more symmetry types, copying team spawns, shops and
+generators).
 
 ## Supported versions
 

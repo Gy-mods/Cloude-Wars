@@ -6,7 +6,8 @@ exits after the launch; the game keeps running and is driven through MCP Control
 Keep 25580 free for the normal bridge: use 25581 and up.
 
 Usage:
-  python tools/mc_clients.py launch <name> <port>             start a client as offline player <name>
+  python tools/mc_clients.py launch <name> <port> [version]   start a client as offline player <name>
+                                                              (version: an SKLauncher version id, default 1.21.11)
   python tools/mc_clients.py call <port> <tool> [json-args]   call one MCP Control tool on that client
   python tools/mc_clients.py stop <port>                      close that client
 """
@@ -25,7 +26,7 @@ VERSION = "fabric-loader-0.18.4-1.21.11"
 CLIENTS = pathlib.Path(os.environ["LOCALAPPDATA"]) / "MCPControl" / "clients"
 
 
-def launch(name, port):
+def launch(name, port, version=VERSION):
     data_dir = CLIENTS / name
     data_dir.mkdir(parents=True, exist_ok=True)
     bridge = subprocess.Popen(["java", str(BRIDGE), "--port", str(port), "--data-dir", str(data_dir)],
@@ -47,7 +48,7 @@ def launch(name, port):
                           "clientInfo": {"name": "mc_clients", "version": "1"}})
     bridge.stdin.write(json.dumps({"jsonrpc": "2.0", "method": "notifications/initialized"}) + "\n")
     reply = rpc(2, "tools/call", {"name": "minecraft_launch", "arguments": {
-        "version": VERSION, "username": name, "max_memory_mb": 2048, "wait_seconds": 300}})
+        "version": version, "username": name, "max_memory_mb": 2048, "wait_seconds": 300}})
     print_result(reply.get("result", reply.get("error")), port)
     bridge.stdin.close()  # the bridge exits, the game keeps running
     bridge.wait(timeout=30)
@@ -84,7 +85,7 @@ def print_result(result, port):
 def main(argv):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     if len(argv) >= 3 and argv[0] == "launch":
-        launch(argv[1], int(argv[2]))
+        launch(argv[1], int(argv[2]), *argv[3:4])
     elif len(argv) >= 3 and argv[0] == "call":
         call(int(argv[1]), argv[2], json.loads(argv[3]) if len(argv) > 3 else {})
     elif len(argv) == 2 and argv[0] == "stop":

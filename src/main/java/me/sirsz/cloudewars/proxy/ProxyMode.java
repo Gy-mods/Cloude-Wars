@@ -85,7 +85,9 @@ public final class ProxyMode implements Listener {
 
     /** New Bedwars just moved the player out of an arena: on a game server that means back to the lobby server. */
     public void onArenaLeave(Player player) {
-        if (!enabled || isAdmin(player)) {
+        // While the server shuts down, the plugin may not schedule tasks (it would abort New Bedwars' saving), and the
+        // proxy moves everyone to the lobby server anyway
+        if (!enabled || isAdmin(player) || !plugin.isEnabled()) {
             return;
         }
         // One tick later, so a player whose leave() came from quitting is already gone

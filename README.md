@@ -23,6 +23,13 @@ Cloude Wars is built on [New Bedwars](https://github.com/l299l/NewBedwars-Free) 
 
 More is coming: team upgrades and the rest of the map maker (symmetry, random team colors).
 
+## Supported versions
+
+**Paper 1.21.4 to 26.3** (Java 21; Minecraft 26.x itself needs Java 25). Tested in-game on 1.21.11 and 26.3, and
+started cleanly on 1.21.4, 1.21.8, 1.21.10, 26.1.2 and 26.2. On 1.21.1 to 1.21.3 the plugin starts, but team blocks
+do not work there and the game has no resin (orange trims) or pale oak (white wood) yet. Proxy mode was tested with
+Velocity 4.3. Folia is not supported.
+
 ## Building
 
 Requires Java 21 and Maven: `mvn package` builds `target/CloudeWars-<version>.jar` for Paper 1.21.11.

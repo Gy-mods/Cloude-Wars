@@ -97,6 +97,9 @@ python tools/mc_clients.py call 25582 run_command '{"command":"server bedwars1"}
 python tools/mc_clients.py stop 25582
 ```
 
+An optional third `launch` argument picks another SKLauncher version, e.g. `fabric-loader-0.19.5-26.3` for a 26.3
+client (MCP Control has builds for Fabric 1.21.11 and 26.3 and NeoForge 1.21.1).
+
 `Claude` is an op on `bedwars1` (admin, not moved by proxy mode). If a command answers "Chat disabled in client
 options", the player is dead: `respawn` first.
 

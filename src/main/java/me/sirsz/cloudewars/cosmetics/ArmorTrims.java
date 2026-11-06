@@ -1,9 +1,10 @@
 package me.sirsz.cloudewars.cosmetics;
 
-import com.l299l.newbedwars.arena.Arena;
-import com.l299l.newbedwars.arena.GameStatus;
-import com.l299l.newbedwars.arena.IArena;
-import com.l299l.newbedwars.arena.team.Team;
+import com.l299l.newbedwars.api.events.ArmorEquipEvent;
+import com.l299l.newbedwars.api.view.ArenaState;
+import com.l299l.newbedwars.api.view.ArenaView;
+import com.l299l.newbedwars.api.view.GamePlayerView;
+import com.l299l.newbedwars.api.view.TeamView;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import java.io.File;
@@ -15,6 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
+import me.sirsz.cloudewars.CloudeWars;
 import me.sirsz.cloudewars.TeamColors;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
@@ -22,6 +24,8 @@ import org.bukkit.Registry;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
@@ -32,10 +36,11 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Armor trim cosmetics: every player picks a trim pattern per armor piece (/bw trim), and the trim material comes
- * from their team's color. The choices are saved in trims.yml in the data folder.
+ * from their team's color. Every armor New Bedwars hands out gets them (start, respawns, upgrades). The choices are
+ * saved in trims.yml in the data folder.
  */
 @SuppressWarnings("deprecation") // New Bedwars' team colors are org.bukkit.ChatColor
-public final class ArmorTrims {
+public final class ArmorTrims implements Listener {
 
     private static final String SAVE_FILE = "trims.yml";
 
@@ -94,16 +99,24 @@ public final class ArmorTrims {
         return armor;
     }
 
+    /** New Bedwars is about to put armor on a player: add their trims. */
+    @EventHandler
+    public void onArmorEquip(ArmorEquipEvent event) {
+        TeamView team = team(event.getArena(), event.getPlayer());
+        event.setArmor(decorate(event.getPlayer(), team == null ? null : team.getColor(), event.getArmor()));
+    }
+
     /** Updates the armor the player wears right now, if they are playing a game. */
     public void refresh(Player player) {
-        IArena arena = Arena.arenaByWorld.get(player.getWorld());
-        if (arena == null || arena.status() != GameStatus.playing || !arena.isPlayerInArena(player)) {
-            return;
-        }
-        Team team = arena.getTeam(player);
+        ArenaView arena = CloudeWars.api().getArena(player).orElse(null);
+        TeamView team = arena == null || arena.getState() != ArenaState.PLAYING ? null : team(arena, player);
         if (team != null) {
             player.getInventory().setArmorContents(decorate(player, team.getColor(), player.getInventory().getArmorContents()));
         }
+    }
+
+    private static @Nullable TeamView team(ArenaView arena, Player player) {
+        return arena.getGamePlayer(player.getUniqueId()).flatMap(GamePlayerView::getTeam).orElse(null);
     }
 
     private void loadMaterials(@Nullable ConfigurationSection config) {

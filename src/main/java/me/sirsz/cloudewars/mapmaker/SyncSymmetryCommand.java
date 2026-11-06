@@ -1,13 +1,13 @@
 package me.sirsz.cloudewars.mapmaker;
 
-import com.l299l.newbedwars.arena.IArena;
-import com.l299l.newbedwars.commands.bedwars.SubCommand;
+import com.l299l.newbedwars.api.command.AddonCommand;
+import com.l299l.newbedwars.api.view.ArenaView;
 import java.util.List;
 import me.sirsz.cloudewars.CloudeWars;
 import org.bukkit.entity.Player;
 
 /** /bw syncSymmetry (setup mode): copies the build part (quarter or half) to the rest of the map. */
-public final class SyncSymmetryCommand extends SubCommand {
+public final class SyncSymmetryCommand implements AddonCommand {
 
     @Override
     public String getName() {
@@ -30,7 +30,7 @@ public final class SyncSymmetryCommand extends SubCommand {
     }
 
     @Override
-    public void perform(Player player, String[] args, IArena arena) {
+    public void perform(Player player, String[] args, ArenaView arena) {
         BuildSymmetry symmetry = CloudeWars.symmetry();
         if (symmetry == null) {
             CloudeWars.send(player, "symmetry-none");
@@ -40,7 +40,7 @@ public final class SyncSymmetryCommand extends SubCommand {
     }
 
     @Override
-    public List<String> getSubcommandArguments(Player player, String[] args) {
-        return null;
+    public List<String> tabComplete(Player player, String[] args) {
+        return List.of();
     }
 }

@@ -1,6 +1,6 @@
 package me.sirsz.cloudewars.mapmaker;
 
-import com.l299l.newbedwars.arena.IArena;
+import com.l299l.newbedwars.api.view.ArenaView;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -70,7 +70,7 @@ public final class BuildSymmetry {
     }
 
     /** /bw setBuildSymmetry quarter nomiddle: the quarter the player stands in is the one they build. */
-    public void setQuarters(Player player, IArena arena, int size) {
+    public void setQuarters(Player player, ArenaView arena, int size) {
         Location location = player.getLocation();
         set(player, arena, new Settings(size, Quarter.of(location.getBlockX(), location.getBlockZ()), null, false));
     }
@@ -79,16 +79,16 @@ public final class BuildSymmetry {
      * /bw setBuildSymmetry half nomiddle mirror|central: the half the player stands in is the one they build, split at
      * the line (z = 0 or x = 0) they stand farther from.
      */
-    public void setHalves(Player player, IArena arena, boolean mirror, int size) {
+    public void setHalves(Player player, ArenaView arena, boolean mirror, int size) {
         Location location = player.getLocation();
         set(player, arena, new Settings(size, null, Half.of(location.getBlockX(), location.getBlockZ()), mirror));
     }
 
     /** Saves the choice and gives the rest of the map a marker floor (only where there is air, so nothing is lost). */
-    private void set(Player player, IArena arena, Settings settings) {
+    private void set(Player player, ArenaView arena, Settings settings) {
         save(arena, settings);
         Layout layout = settings.layout();
-        World world = arena.getArenaWorld();
+        World world = arena.getWorld();
         for (Region other : layout.rest()) {
             for (int x = other.minX(); x <= other.maxX(); x++) {
                 for (int z = other.minZ(); z <= other.maxZ(); z++) {
@@ -107,20 +107,20 @@ public final class BuildSymmetry {
     }
 
     /** /bw syncSymmetry: copies the build part's blocks and team blocks to the rest of the map. */
-    public void sync(Player player, IArena arena) {
+    public void sync(Player player, ArenaView arena) {
         Settings settings = load(arena);
         if (settings == null) {
             CloudeWars.send(player, "symmetry-none");
             return;
         }
-        if (!copying.add(arena.getArenaName())) {
+        if (!copying.add(arena.getName())) {
             CloudeWars.send(player, "symmetry-busy");
             return;
         }
         Layout layout = settings.layout();
         int teamBlocks = copyTeamBlocks(player, arena, layout);
-        new SymmetryCopy(arena.getArenaWorld(), layout, player, changed -> {
-            copying.remove(arena.getArenaName());
+        new SymmetryCopy(arena.getWorld(), layout, player, changed -> {
+            copying.remove(arena.getName());
             if (player.isOnline()) {
                 CloudeWars.send(player, "symmetry-synced", "blocks", String.valueOf(changed), "teamblocks", String.valueOf(teamBlocks));
             }
@@ -132,7 +132,7 @@ public final class BuildSymmetry {
      * and 2 in the build part, the first copy gets teams 3 and 4, the next 5 and 6, ... The rest of the map's old
      * team blocks are removed first. Returns how many team blocks were added.
      */
-    private int copyTeamBlocks(Player player, IArena arena, Layout layout) {
+    private int copyTeamBlocks(Player player, ArenaView arena, Layout layout) {
         Map<BlockPos, Integer> marks = teamBlockMarks.marks(arena);
         Map<BlockPos, Integer> built = new HashMap<>();
         marks.entrySet().removeIf(mark -> {
@@ -168,11 +168,11 @@ public final class BuildSymmetry {
         return added;
     }
 
-    private File file(IArena arena) {
-        return new File(new File(plugin.getDataFolder(), FOLDER), arena.getArenaName() + ".yml");
+    private File file(ArenaView arena) {
+        return new File(new File(plugin.getDataFolder(), FOLDER), arena.getName() + ".yml");
     }
 
-    private @Nullable Settings load(IArena arena) {
+    private @Nullable Settings load(ArenaView arena) {
         File file = file(arena);
         if (!file.exists()) {
             return null;
@@ -195,9 +195,9 @@ public final class BuildSymmetry {
         return new Settings(size, null, half, kind.equals("mirror"));
     }
 
-    private void save(IArena arena, Settings settings) {
+    private void save(ArenaView arena, Settings settings) {
         YamlConfiguration saved = new YamlConfiguration();
-        saved.options().setHeader(List.of("Map maker symmetry of arena " + arena.getArenaName()
+        saved.options().setHeader(List.of("Map maker symmetry of arena " + arena.getName()
                 + " (/bw setBuildSymmetry). The map is 2 x size blocks each way around x 0, z 0"));
         saved.set("type", settings.quarter() != null ? "quarter" : "half");
         saved.set("middle", false);

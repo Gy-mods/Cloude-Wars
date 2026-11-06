@@ -1,7 +1,7 @@
 package me.sirsz.cloudewars.mapmaker;
 
-import com.l299l.newbedwars.arena.IArena;
-import com.l299l.newbedwars.commands.bedwars.SubCommand;
+import com.l299l.newbedwars.api.command.AddonCommand;
+import com.l299l.newbedwars.api.view.ArenaView;
 import java.util.List;
 import me.sirsz.cloudewars.CloudeWars;
 import org.bukkit.entity.Player;
@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
  * /bw setBuildSymmetry quarter nomiddle [size] or /bw setBuildSymmetry half nomiddle &lt;mirror|central&gt; [size]
  * (setup mode): build one part of the map, /bw syncSymmetry copies it.
  */
-public final class SetBuildSymmetryCommand extends SubCommand {
+public final class SetBuildSymmetryCommand implements AddonCommand {
 
     private static final String QUARTER = "quarter";
     private static final String HALF = "half";
@@ -39,7 +39,7 @@ public final class SetBuildSymmetryCommand extends SubCommand {
     }
 
     @Override
-    public void perform(Player player, String[] args, IArena arena) {
+    public void perform(Player player, String[] args, ArenaView arena) {
         BuildSymmetry symmetry = CloudeWars.symmetry();
         if (symmetry == null || args.length < 3) {
             CloudeWars.send(player, "symmetry-usage");
@@ -79,7 +79,7 @@ public final class SetBuildSymmetryCommand extends SubCommand {
     }
 
     @Override
-    public List<String> getSubcommandArguments(Player player, String[] args) {
+    public List<String> tabComplete(Player player, String[] args) {
         BuildSymmetry symmetry = CloudeWars.symmetry();
         String size = symmetry == null ? "" : String.valueOf(symmetry.defaultSize());
         boolean half = args.length > 1 && args[1].equalsIgnoreCase(HALF);
@@ -87,8 +87,8 @@ public final class SetBuildSymmetryCommand extends SubCommand {
             case 2 -> List.of(QUARTER, HALF);
             case 3 -> List.of(NO_MIDDLE);
             case 4 -> half ? List.of(MIRROR, CENTRAL) : List.of(size);
-            case 5 -> half ? List.of(size) : null;
-            default -> null;
+            case 5 -> half ? List.of(size) : List.of();
+            default -> List.of();
         };
     }
 }

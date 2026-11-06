@@ -1,7 +1,7 @@
 package me.sirsz.cloudewars.teams;
 
-import com.l299l.newbedwars.arena.Arena;
-import com.l299l.newbedwars.arena.IArena;
+import com.l299l.newbedwars.api.view.ArenaView;
+import com.l299l.newbedwars.api.view.TeamView;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import com.l299l.newbedwars.arena.team.Team;
 import me.sirsz.cloudewars.BlockPos;
 import me.sirsz.cloudewars.CloudeWars;
 import me.sirsz.cloudewars.TeamColors;
@@ -35,7 +34,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * The map maker's team blocks. A builder in setup mode places a block named "#&lt;team&gt;#..." (renamed in an anvil);
  * its position and team number are saved in teamblocks/&lt;arena&gt;.yml, and when a game starts the block turns into
- * that team's version. The arena world is reloaded from disk after every game, which brings the placeholders back.
+ * that team's version. New Bedwars puts the saved map back after every game, which brings the placeholders back.
  */
 public final class TeamBlockMarks implements Listener {
 
@@ -58,7 +57,7 @@ public final class TeamBlockMarks implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
-        IArena arena = setupArena(player);
+        ArenaView arena = setupArena(player);
         Integer team = arena == null ? null : teamNumber(event.getItemInHand());
         if (team == null) {
             return;
@@ -78,7 +77,7 @@ public final class TeamBlockMarks implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBreak(BlockBreakEvent event) {
-        IArena arena = setupArena(event.getPlayer());
+        ArenaView arena = setupArena(event.getPlayer());
         if (arena == null) {
             return;
         }
@@ -90,8 +89,8 @@ public final class TeamBlockMarks implements Listener {
     }
 
     /** Turns the arena's marked blocks into their teams' versions; called when its game starts. */
-    public void recolor(IArena arena) {
-        World world = arena.getArenaWorld();
+    public void recolor(ArenaView arena) {
+        World world = arena.getWorld();
         arenaMarks(arena).forEach((pos, team) -> {
             if (team >= 1 && team <= teamColors.size()) {
                 recolor(world.getBlockAt(pos.x(), pos.y(), pos.z()), colorOfTeamNumber(arena, team));
@@ -100,12 +99,12 @@ public final class TeamBlockMarks implements Listener {
     }
 
     /** The arena's team blocks (a copy): position -> team number. */
-    public Map<BlockPos, Integer> marks(IArena arena) {
+    public Map<BlockPos, Integer> marks(ArenaView arena) {
         return new HashMap<>(arenaMarks(arena));
     }
 
     /** Replaces all of the arena's team blocks (the map maker's symmetry copies them) and saves them. */
-    public void setMarks(IArena arena, Map<BlockPos, Integer> newMarks) {
+    public void setMarks(ArenaView arena, Map<BlockPos, Integer> newMarks) {
         Map<BlockPos, Integer> arenaMarks = arenaMarks(arena);
         arenaMarks.clear();
         arenaMarks.putAll(newMarks);
@@ -122,12 +121,12 @@ public final class TeamBlockMarks implements Listener {
      * team-numbers, whatever color the randomizer gave it. Without such a team the number keeps that first color.
      */
     @SuppressWarnings("deprecation") // New Bedwars' team colors are org.bukkit.ChatColor
-    private String colorOfTeamNumber(IArena arena, int number) {
+    private String colorOfTeamNumber(ArenaView arena, int number) {
         String numberColor = teamColors.get(number - 1);
         ChatColor baseColor = TeamColors.fromName(numberColor);
-        for (Team team : arena.getTeams().values()) {
-            if (team.getBaseColor() == baseColor) {
-                String roundColor = CloudeWars.colorName(team.getColor());
+        for (TeamView team : arena.getTeams()) {
+            if (TeamColorRandomizer.baseColor(team) == baseColor) {
+                String roundColor = TeamColors.name(team.getColor());
                 return roundColor != null ? roundColor : numberColor;
             }
         }
@@ -142,10 +141,13 @@ public final class TeamBlockMarks implements Listener {
         TeamBlocks.setWithOtherHalf(block, team, otherHalf -> teamBlocks.teamData(otherHalf, colorName));
     }
 
-    /** The arena the player is setting up in this world, or null if they are not in setup mode here. */
-    private static @Nullable IArena setupArena(Player player) {
-        IArena arena = Arena.arenaByWorld.get(player.getWorld());
-        return arena != null && arena.getPlayersOnSetup().contains(player.getUniqueId()) ? arena : null;
+    /**
+     * The arena whose world the player builds in while it is set up, or null. New Bedwars' API does not tell who is in
+     * setup mode, so a disabled arena counts: arenas are disabled while they are set up.
+     */
+    private static @Nullable ArenaView setupArena(Player player) {
+        ArenaView arena = CloudeWars.api().getArena(player.getWorld()).orElse(null);
+        return arena != null && !arena.isEnabled() ? arena : null;
     }
 
     /** The team number in an item's name ("#2#..." is team 2), or null if it has none. */
@@ -159,8 +161,8 @@ public final class TeamBlockMarks implements Listener {
         return matcher.find() ? Integer.parseInt(matcher.group(1)) : null;
     }
 
-    private Map<BlockPos, Integer> arenaMarks(IArena arena) {
-        return marks.computeIfAbsent(arena.getArenaName(), this::load);
+    private Map<BlockPos, Integer> arenaMarks(ArenaView arena) {
+        return marks.computeIfAbsent(arena.getName(), this::load);
     }
 
     private File file(String arenaName) {
@@ -185,12 +187,12 @@ public final class TeamBlockMarks implements Listener {
         return loaded;
     }
 
-    private void save(IArena arena) {
+    private void save(ArenaView arena) {
         YamlConfiguration saved = new YamlConfiguration();
-        saved.options().setHeader(List.of("Team blocks of arena " + arena.getArenaName()
+        saved.options().setHeader(List.of("Team blocks of arena " + arena.getName()
                 + ", placed with #<team>#-named items: \"x,y,z\": team number"));
         arenaMarks(arena).forEach((pos, team) -> saved.set("blocks." + pos, team));
-        File file = file(arena.getArenaName());
+        File file = file(arena.getName());
         file.getParentFile().mkdirs();
         try {
             saved.save(file);

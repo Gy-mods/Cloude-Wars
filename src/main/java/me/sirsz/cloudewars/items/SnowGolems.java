@@ -1,14 +1,16 @@
 package me.sirsz.cloudewars.items;
 
-import com.l299l.newbedwars.arena.Arena;
-import com.l299l.newbedwars.arena.GameStatus;
-import com.l299l.newbedwars.arena.IArena;
-import com.l299l.newbedwars.arena.team.Team;
+import com.l299l.newbedwars.api.view.ArenaState;
+import com.l299l.newbedwars.api.view.ArenaView;
+import com.l299l.newbedwars.api.view.GamePlayerView;
+import com.l299l.newbedwars.api.view.TeamView;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import me.sirsz.cloudewars.CloudeWars;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.HeightMap;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
@@ -42,12 +44,12 @@ import org.jspecify.annotations.Nullable;
  */
 public final class SnowGolems implements Listener {
 
-    public static final String ITEM_NAME = "SnowGolem";
-
     /** How far it looks for enemies, and how close they must be for a snowball (a normal snow golem's range). */
     private static final double TARGET_RANGE = 16;
     private static final double SHOOT_RANGE = 10;
     private static final int RETARGET_TICKS = 10;
+    /** How far it may fall over nothing (no block below it down to the bottom of the world) before it comes back. */
+    private static final double VOID_FALL = 3;
 
     private final JavaPlugin plugin;
     private final NamespacedKey ownerKey;
@@ -68,51 +70,58 @@ public final class SnowGolems implements Listener {
     }
 
     /** Spawns the player's snow golem at their feet; false if they are in no team. */
-    public boolean spawn(Player owner, IArena arena) {
-        Team team = arena.getTeam(owner);
+    public boolean spawn(Player owner, ArenaView arena) {
+        TeamView team = team(arena, owner);
         if (team == null) {
             return false;
         }
         Snowman golem = owner.getWorld().spawn(owner.getLocation(), Snowman.class, spawned -> {
             spawned.customName(LegacyComponentSerializer.legacySection()
-                    .deserialize(team.getColor() + team.getDisplayName() + " Snow Golem"));
+                    .deserialize(team.getColor() + team.getName() + " Snow Golem"));
             spawned.setCustomNameVisible(true);
             spawned.setRemoveWhenFarAway(false);
             spawned.getPersistentDataContainer().set(ownerKey, PersistentDataType.STRING, owner.getUniqueId().toString());
-            spawned.getPersistentDataContainer().set(teamKey, PersistentDataType.STRING, arena.getArenaName() + ":" + team.getName());
+            spawned.getPersistentDataContainer().set(teamKey, PersistentDataType.STRING, arena.getName() + ":" + team.getName());
             AttributeInstance speed = spawned.getAttribute(Attribute.MOVEMENT_SPEED);
             if (speed != null) {
                 speed.setBaseValue(speed.getBaseValue() * speedMultiplier);
             }
         });
-        new GolemTask(golem, arena, team, owner.getUniqueId()).runTaskTimer(plugin, 1, 1);
+        new GolemTask(golem, arena.getName(), team.getName(), owner.getUniqueId()).runTaskTimer(plugin, 1, 1);
         return true;
     }
 
     /** Runs every tick for one golem: void rescue, picking enemies and the extra snowballs. */
     private final class GolemTask extends BukkitRunnable {
         private final Snowman golem;
-        private final IArena arena;
-        private final Team team;
+        private final String arenaName;
+        private final String teamName;
         private final UUID ownerId;
+        /** The height it last stood at. */
+        private double groundY;
         private int ticks;
+        /** This tick's arena (New Bedwars hands out fresh views; old ones die with a /bw reload). */
+        private @Nullable ArenaView arena;
 
-        GolemTask(Snowman golem, IArena arena, Team team, UUID ownerId) {
+        GolemTask(Snowman golem, String arenaName, String teamName, UUID ownerId) {
             this.golem = golem;
-            this.arena = arena;
-            this.team = team;
+            this.arenaName = arenaName;
+            this.teamName = teamName;
             this.ownerId = ownerId;
+            this.groundY = golem.getY();
         }
 
         @Override
         public void run() {
-            if (!golem.isValid() || arena.status() != GameStatus.playing) {
+            arena = CloudeWars.api().getArena(arenaName).orElse(null);
+            if (!golem.isValid() || arena == null || arena.getState() != ArenaState.PLAYING) {
                 golem.remove();
                 cancel();
                 return;
             }
-            Integer quickVoidY = arena.getQuickVoidY();
-            if (golem.getLocation().getY() < (quickVoidY != null ? quickVoidY : golem.getWorld().getMinHeight())) {
+            if (golem.isOnGround()) {
+                groundY = golem.getY();
+            } else if (fellIntoVoid()) {
                 bringBack();
                 return;
             }
@@ -125,12 +134,26 @@ public final class SnowGolems implements Listener {
             }
         }
 
+        /**
+         * Whether it is falling with nothing below it. New Bedwars' API does not tell an arena's quick void height,
+         * so the column under the golem is checked instead.
+         */
+        private boolean fellIntoVoid() {
+            if (golem.getY() < golem.getWorld().getMinHeight()) {
+                return true;
+            }
+            int highest = golem.getWorld().getHighestBlockYAt(golem.getLocation().getBlockX(), golem.getLocation().getBlockZ(),
+                    HeightMap.WORLD_SURFACE);
+            return golem.getY() < groundY - VOID_FALL && highest < golem.getWorld().getMinHeight();
+        }
+
         /** Back next to the owner (or to the team spawn while the owner is dead), keeping its health. */
         private void bringBack() {
             Player owner = Bukkit.getPlayer(ownerId);
-            boolean ownerPlaying = owner != null && arena.isPlayerInArena(owner) && owner.getGameMode() == GameMode.SURVIVAL
+            TeamView team = arena.getTeam(teamName).orElse(null);
+            boolean ownerPlaying = owner != null && team(arena, owner) != null && owner.getGameMode() == GameMode.SURVIVAL
                     && owner.getWorld().equals(golem.getWorld());
-            Location to = ownerPlaying ? owner.getLocation() : team.getTeamSpawn();
+            Location to = ownerPlaying ? owner.getLocation() : team == null ? null : team.getSpawn();
             if (to == null) {
                 golem.remove();
                 return;
@@ -138,13 +161,14 @@ public final class SnowGolems implements Listener {
             golem.setVelocity(new Vector());
             golem.setFallDistance(0);
             golem.teleport(to);
+            groundY = to.getY();
         }
 
         private @Nullable Player nearestEnemy() {
             Player nearest = null;
             double nearestDistance = TARGET_RANGE * TARGET_RANGE;
-            for (Team other : arena.getTeams().values()) {
-                if (other.equals(team)) {
+            for (TeamView other : arena.getTeams()) {
+                if (other.getName().equals(teamName)) {
                     continue;
                 }
                 for (Player enemy : other.getPlayers()) {
@@ -266,9 +290,16 @@ public final class SnowGolems implements Listener {
     private boolean sameTeam(Snowman golem, Player player) {
         String key = golem.getPersistentDataContainer().get(teamKey, PersistentDataType.STRING);
         int colon = key == null ? -1 : key.indexOf(':');
-        IArena arena = colon < 0 ? null : Arena.arenaByName.get(key.substring(0, colon));
-        Team golemTeam = arena == null ? null : arena.getTeam(key.substring(colon + 1));
-        return golemTeam == null || golemTeam.equals(arena.getTeam(player));
+        ArenaView arena = colon < 0 ? null : CloudeWars.api().getArena(key.substring(0, colon)).orElse(null);
+        if (arena == null || arena.getTeam(key.substring(colon + 1)).isEmpty()) {
+            return true;
+        }
+        TeamView playerTeam = team(arena, player);
+        return playerTeam != null && playerTeam.getName().equals(key.substring(colon + 1));
+    }
+
+    private static @Nullable TeamView team(ArenaView arena, Player player) {
+        return arena.getGamePlayer(player.getUniqueId()).flatMap(GamePlayerView::getTeam).orElse(null);
     }
 
     private static @Nullable Player attacker(Entity damager) {

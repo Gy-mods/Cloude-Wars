@@ -1,130 +1,17 @@
 name: CloudeWars
 version: '${project.version}'
-main: com.l299l.newbedwars.NewBedwars
-api-version: '1.17'
-load: STARTUP
-authors: [l299l, sirsz]
-softdepend: [PlaceholderAPI, WorldEdit, FastAsyncWorldEdit]
-description: Cloude Wars - a Bedwars plugin based on New Bedwars by l299l
+main: me.sirsz.cloudewars.CloudeWars
+api-version: '1.21'
+authors: [sirsz]
+depend: [NewBedwars]
+description: Cloude Wars - an addon for New Bedwars by l299l (trims, team wood, team blocks, symmetry, snow golem)
+website: https://github.com/Gy-mods/Cloude-Wars
 commands:
-  bw:
-    description: Main bedwars command!
-    usage: /<command>
-  lobby:
-    description: Teleport to the lobby!
-    usage: /<command>
-  lang:
-    description: Change your language!
-    usage: /<command> <en|pl|de|es|fr|ru>
-  party:
-    description: Party management!
-    usage: /<command> [invite|accept|deny|leave|list|kick|admin]
-    aliases: [p]
-  p:
-    description: Party management (alias for /party)!
-    usage: /<command> [invite|accept|deny|leave|list|kick|admin]
-
+  cloudewars:
+    description: Cloude Wars admin commands
+    usage: /<command> reload
+    permission: cloudewars.admin
 permissions:
-  # ---- Admin ----------------------------------------
-  newbedwars.bw.admin:
-    description: Full access to all admin commands.
-    default: op
-    children:
-      newbedwars.bw.arena: true
-      newbedwars.bw.setlobby: true
-      newbedwars.bw.managegame: true
-
-  newbedwars.bw.arena:
-    description: Manage arenas (create, delete, enable, disable, setup, list).
-    default: op
-    children:
-      newbedwars.bw.arena.create: true
-      newbedwars.bw.arena.delete: true
-      newbedwars.bw.arena.enable: true
-      newbedwars.bw.arena.disable: true
-      newbedwars.bw.arena.setup: true
-      newbedwars.bw.arena.list: true
-
-  newbedwars.bw.arena.create:
-    description: Create arenas.
-    default: op
-  newbedwars.bw.arena.delete:
-    description: Delete arenas.
-    default: op
-  newbedwars.bw.arena.enable:
-    description: Enable arenas.
-    default: op
-  newbedwars.bw.arena.disable:
-    description: Disable arenas.
-    default: op
-  newbedwars.bw.arena.setup:
-    description: Enter arena setup mode.
-    default: op
-  newbedwars.bw.arena.list:
-    description: List all arenas and their status.
-    default: op
-
-  newbedwars.bw.setlobby:
-    description: Set the lobby location.
-    default: op
-  newbedwars.bw.managegame:
-    description: Manage ongoing games.
-    default: op
-
-  newbedwars.bw.bypass:
-    description: Bypass restrictions (e.g. teleport to admins in setup worlds).
-    default: op
-
-  # ---- Player ---------------------------------------
-  newbedwars.bw.player:
-    description: Default player permissions bundle.
-    default: true
-    children:
-      newbedwars.bw.join: true
-      newbedwars.bw.lobby: true
-      newbedwars.bw.rejoin: true
-      newbedwars.bw.spectate: true
-      newbedwars.bw.lang: true
-      newbedwars.bw.help: true
-      newbedwars.bw.stats: true
-      newbedwars.bw.profile: true
-      newbedwars.bw.leaderboard: true
-      newbedwars.party: true
-
-  newbedwars.bw.join:
-    description: Join arenas.
-    default: true
-  newbedwars.bw.lobby:
-    description: Teleport to the lobby.
-    default: true
-  newbedwars.bw.rejoin:
-    description: Rejoin a game after disconnecting.
-    default: true
-  newbedwars.bw.spectate:
-    description: Spectate arenas.
-    default: true
-  newbedwars.bw.lang:
-    description: Change language.
-    default: true
-  newbedwars.bw.help:
-    description: View the help menu.
-    default: true
-  newbedwars.bw.stats:
-    description: View your or another player's stats and profile GUI.
-    default: true
-  newbedwars.bw.profile:
-    description: View your or another player's profile GUI, including fast-buy customization.
-    default: true
-  newbedwars.bw.leaderboard:
-    description: View the top-10 leaderboards.
-    default: true
-
-  # ---- Party ----------------------------------------
-  newbedwars.party:
-    description: Use all /party commands.
-    default: true
-
-  # ---- Cloude Wars ----------------------------------
-  cloudewars.proxy.admin:
-    description: In proxy mode, stay on the game server instead of being moved into the arena or back to the lobby.
+  cloudewars.admin:
+    description: Reload Cloude Wars with /cloudewars reload.
     default: op

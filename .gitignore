@@ -124,8 +124,6 @@ servers/*/*
 !servers/*/start.bat
 archive/
 .mcp.json
-# The New Bedwars API, kept here until it can be downloaded from JitPack (see pom.xml)
-!libs/**/*.jar
 
 # Python caches from the tools
 __pycache__/

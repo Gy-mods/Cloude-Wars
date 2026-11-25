@@ -141,13 +141,10 @@ public final class TeamBlockMarks implements Listener {
         TeamBlocks.setWithOtherHalf(block, team, otherHalf -> teamBlocks.teamData(otherHalf, colorName));
     }
 
-    /**
-     * The arena whose world the player builds in while it is set up, or null. New Bedwars' API does not tell who is in
-     * setup mode, so a disabled arena counts: arenas are disabled while they are set up.
-     */
+    /** The arena the player is setting up in this world, or null if they are not in setup mode here. */
     private static @Nullable ArenaView setupArena(Player player) {
-        ArenaView arena = CloudeWars.api().getArena(player.getWorld()).orElse(null);
-        return arena != null && !arena.isEnabled() ? arena : null;
+        ArenaView arena = CloudeWars.api().getSetupArena(player).orElse(null);
+        return arena != null && player.getWorld().equals(arena.getWorld()) ? arena : null;
     }
 
     /** The team number in an item's name ("#2#..." is team 2), or null if it has none. */

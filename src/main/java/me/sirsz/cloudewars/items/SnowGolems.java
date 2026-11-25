@@ -48,7 +48,7 @@ public final class SnowGolems implements Listener {
     private static final double TARGET_RANGE = 16;
     private static final double SHOOT_RANGE = 10;
     private static final int RETARGET_TICKS = 10;
-    /** How far it may fall over nothing (no block below it down to the bottom of the world) before it comes back. */
+    /** Without a quick void height: how far it may fall over nothing (no block below it) before it comes back. */
     private static final double VOID_FALL = 3;
 
     private final JavaPlugin plugin;
@@ -77,7 +77,7 @@ public final class SnowGolems implements Listener {
         }
         Snowman golem = owner.getWorld().spawn(owner.getLocation(), Snowman.class, spawned -> {
             spawned.customName(LegacyComponentSerializer.legacySection()
-                    .deserialize(team.getColor() + team.getName() + " Snow Golem"));
+                    .deserialize(team.getColor() + displayName(team) + " Snow Golem"));
             spawned.setCustomNameVisible(true);
             spawned.setRemoveWhenFarAway(false);
             spawned.getPersistentDataContainer().set(ownerKey, PersistentDataType.STRING, owner.getUniqueId().toString());
@@ -135,10 +135,14 @@ public final class SnowGolems implements Listener {
         }
 
         /**
-         * Whether it is falling with nothing below it. New Bedwars' API does not tell an arena's quick void height,
-         * so the column under the golem is checked instead.
+         * Whether it fell below the arena's quick void height, or (for arenas without one) is falling with no block
+         * below it.
          */
         private boolean fellIntoVoid() {
+            Integer quickVoidY = arena.getQuickVoidY();
+            if (quickVoidY != null) {
+                return golem.getY() < quickVoidY;
+            }
             if (golem.getY() < golem.getWorld().getMinHeight()) {
                 return true;
             }
@@ -296,6 +300,11 @@ public final class SnowGolems implements Listener {
         }
         TeamView playerTeam = team(arena, player);
         return playerTeam != null && playerTeam.getName().equals(key.substring(colon + 1));
+    }
+
+    /** The team name players see: New Bedwars 2.8 has display names (random team colors set them). */
+    private static String displayName(TeamView team) {
+        return CloudeWars.newBedwarsApiVersion() >= 1 ? team.getDisplayName() : team.getName();
     }
 
     private static @Nullable TeamView team(ArenaView arena, Player player) {

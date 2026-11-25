@@ -6,14 +6,14 @@
 # The colors random team colors pick from
 team-colors: [white, black, red, orange, yellow, lime, blue, purple]
 
-# Random team colors: before every round each team gets a different random color from team-colors (its name stays as
-# the arena was set up). The colors an arena was set up with still number its teams for team blocks (team-numbers).
+# Random team colors: before every round each team gets a different random color from team-colors, and its bed is
+# painted in it. With New Bedwars 2.8-beta and newer the team's name follows too ("Lime"); before, names stay as the
+# arena was set up. The colors an arena was set up with still number its teams for team blocks (team-numbers).
 random-team-colors: true
-# Team beds are painted in the round's color: the bed nearest to a team's spawn, at most this many blocks away
-random-team-colors-bed-distance: 24
 
-# The wood type of each team color. Oak planks bought in the shop turn into the buyer's team planks right after
-# buying (red gets mangrove planks; the shop still shows oak). Teams of other colors get oak.
+# The wood type of each team color. The shop's oak planks become the buyer's team planks (red gets mangrove planks):
+# New Bedwars 2.8-beta and newer show them in the shop too, 2.7-beta swaps them right after buying. Teams of other
+# colors get oak.
 team-wood:
   white: pale_oak
   black: dark_oak
@@ -65,8 +65,8 @@ symmetry:
   marker-block: terracotta
   marker-y: 64
 
-# The snow golem egg for the shop: add it to New Bedwars' data/items.yml and shop file yourself (see the README),
-# with itemLogic: SNOW_GOLEM. It throws snowballs at enemies that knock them back, never hits its own team,
+# The snow golem egg in the shop (item SnowGolem in New Bedwars' data/items.yml, itemLogic: SNOW_GOLEM; Cloude Wars adds
+# it with 5 gold, change price and texts there or in the web panel). It throws snowballs at enemies that knock them back, never hits its own team,
 # and when it falls into the void it comes back next to its owner with the same health.
 snow-golem:
   # Walking speed compared to a normal snow golem (1 = normal)
@@ -75,6 +75,11 @@ snow-golem:
   snowballs-per-second: 5
   # How hard each snowball pushes an enemy (0.4 = like a hit, 0 = no push)
   knockback: 0.4
+
+shop:
+  # Put Cloude Wars' items into New Bedwars' shop GUIs once: the snow golem egg after the silverfish, the Wood item
+  # after the wool. A GUI that has them is remembered in shop.yml, so moving or removing them later is kept.
+  add-items: true
 
 # {piece} = helmet/chestplate/leggings/boots, {trim} = the trim pattern, {trims} = every pattern,
 # {team} = a team number, {max} = the highest team number (or size),

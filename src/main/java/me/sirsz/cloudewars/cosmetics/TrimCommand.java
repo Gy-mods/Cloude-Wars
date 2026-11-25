@@ -8,11 +8,6 @@ import java.util.List;
 import java.util.Locale;
 import me.sirsz.cloudewars.CloudeWars;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.server.TabCompleteEvent;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 
 /** /bw trim &lt;helmet|chestplate|leggings|boots&gt; &lt;trim|none&gt;: picks the trim pattern of one armor piece. */
@@ -76,56 +71,5 @@ public final class TrimCommand implements AddonCommand {
             return names;
         }
         return List.of();
-    }
-
-    /**
-     * /bw trim outside arenas. New Bedwars lets a command name be in one place only, so trim is its in-game command
-     * and this listener answers it (and tab-completes it) in the lobby.
-     */
-    public static final class LobbyCommand implements Listener {
-
-        private final TrimCommand command = new TrimCommand();
-
-        @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-        public void onCommand(PlayerCommandPreprocessEvent event) {
-            String[] args = bwArgs(event.getMessage().trim());
-            if (args != null && args.length > 0 && args[0].equalsIgnoreCase(NAME) && inLobby(event.getPlayer())) {
-                event.setCancelled(true);
-                command.perform(event.getPlayer(), args, null);
-            }
-        }
-
-        @EventHandler(ignoreCancelled = true)
-        public void onTabComplete(TabCompleteEvent event) {
-            String[] args = bwArgs(event.getBuffer());
-            if (args == null || args.length == 0 || !(event.getSender() instanceof Player player) || !inLobby(player)) {
-                return;
-            }
-            String typed = args[args.length - 1].toLowerCase(Locale.ROOT);
-            if (args.length == 1) {
-                if (NAME.startsWith(typed) && !event.getCompletions().contains(NAME)) {
-                    List<String> completions = new ArrayList<>(event.getCompletions());
-                    completions.add(NAME);
-                    event.setCompletions(completions);
-                }
-            } else if (args[0].equalsIgnoreCase(NAME)) {
-                event.setCompletions(command.tabComplete(player, args).stream()
-                        .filter(option -> option.toLowerCase(Locale.ROOT).startsWith(typed)).toList());
-            }
-        }
-
-        private static boolean inLobby(Player player) {
-            return CloudeWars.api().getArena(player).isEmpty();
-        }
-
-        /** The arguments of a /bw command line ("" as last one when it ends with a space), or null for other commands. */
-        private static String[] bwArgs(String line) {
-            String[] words = line.split(" ", -1);
-            String label = words[0].toLowerCase(Locale.ROOT);
-            if (!label.equals("/bw") && !label.equals("/newbedwars:bw")) {
-                return null;
-            }
-            return Arrays.copyOfRange(words, 1, words.length);
-        }
     }
 }

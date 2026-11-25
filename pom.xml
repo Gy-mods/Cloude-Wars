@@ -6,7 +6,7 @@
 
     <groupId>me.sirsz</groupId>
     <artifactId>CloudeWars</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
     <packaging>jar</packaging>
 
     <name>CloudeWars</name>
@@ -42,11 +42,13 @@
             <id>papermc-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
-        <!-- The New Bedwars API (newbedwars-api of New Bedwars 2.6-beta, GPL-3.0). New Bedwars publishes it through
-             JitPack, but its 2.6-beta build fails there, so a copy is kept in libs/ for now. -->
+        <!-- The New Bedwars API (newbedwars-api, GPL-3.0) from JitPack. Built against the 2.8-beta development build
+             (commit aba66b9): Cloude Wars needs New Bedwars 2.7-beta and uses the 2.8-beta additions only when the
+             server runs 2.8-beta or newer (see CloudeWars.newBedwarsApiVersion). Switch to the v2.8-beta tag once it is
+             released. -->
         <repository>
-            <id>cloudewars-libs</id>
-            <url>file://${project.basedir}/libs</url>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
@@ -58,9 +60,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.l299l</groupId>
+            <groupId>com.github.l299l.NewBedwars-Free</groupId>
             <artifactId>newbedwars-api</artifactId>
-            <version>2.6-beta</version>
+            <version>aba66b9</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

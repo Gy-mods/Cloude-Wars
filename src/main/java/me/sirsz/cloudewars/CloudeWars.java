@@ -9,8 +9,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import me.sirsz.cloudewars.cosmetics.ArmorTrims;
 import me.sirsz.cloudewars.cosmetics.TrimCommand;
+import me.sirsz.cloudewars.items.ShopItems;
 import me.sirsz.cloudewars.items.SnowGolemLogic;
 import me.sirsz.cloudewars.items.SnowGolems;
 import me.sirsz.cloudewars.mapmaker.BuildSymmetry;
@@ -20,6 +23,7 @@ import me.sirsz.cloudewars.teams.GameListener;
 import me.sirsz.cloudewars.teams.TeamBlockMarks;
 import me.sirsz.cloudewars.teams.TeamBlocks;
 import me.sirsz.cloudewars.teams.TeamColorRandomizer;
+import me.sirsz.cloudewars.teams.TeamShopWood;
 import me.sirsz.cloudewars.teams.TeamWood;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -42,6 +46,8 @@ public final class CloudeWars extends JavaPlugin {
     private static final String CONFIG_FILE = "cloudewars.yml";
     /** The shop logic name of the snow golem egg ({@code itemLogic} in New Bedwars' data/items.yml). */
     public static final String SNOW_GOLEM_LOGIC = "SNOW_GOLEM";
+    /** The oldest New Bedwars this version works with: its API adds shop items and knows setups, beds and void heights. */
+    private static final int[] NEEDED_NEW_BEDWARS = {2, 7};
 
     private static @Nullable CloudeWars plugin;
     private static YamlConfiguration config = new YamlConfiguration();
@@ -51,17 +57,26 @@ public final class CloudeWars extends JavaPlugin {
     private static @Nullable TeamColorRandomizer randomizer;
     private static @Nullable SnowGolems snowGolems;
     private static @Nullable BuildSymmetry symmetry;
+    /** New Bedwars' addon API version ({@code NewBedwarsAPI.getApiVersion()}): 0 for 2.7-beta, 1 for 2.8-beta, ... */
+    private static int newBedwarsApiVersion;
 
     @Override
     public void onEnable() {
         plugin = this;
         NewBedwarsAPI api = NewBedwarsAPI.get();
+        if (!isAtLeast(api.getVersion(), NEEDED_NEW_BEDWARS)) {
+            getLogger().severe("Cloude Wars " + getPluginMeta().getVersion() + " needs New Bedwars " + NEEDED_NEW_BEDWARS[0]
+                    + "." + NEEDED_NEW_BEDWARS[1] + "-beta or newer, this server has " + api.getVersion() + ".");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        newBedwarsApiVersion = apiVersion(api);
         reload();
-        TrimCommand trim = new TrimCommand();
-        api.registerCommand(this, trim, CommandContext.GAME);
+        api.registerCommand(this, new TrimCommand(), CommandContext.LOBBY, CommandContext.GAME);
         api.registerCommand(this, new SetBuildSymmetryCommand(), CommandContext.SETUP_BASIC);
         api.registerCommand(this, new SyncSymmetryCommand(), CommandContext.SETUP_BASIC);
         api.registerShopLogic(this, SNOW_GOLEM_LOGIC, new SnowGolemLogic());
+        new ShopItems(this, config).register(api);
         warnAboutOldData();
     }
 
@@ -76,13 +91,13 @@ public final class CloudeWars extends JavaPlugin {
         config = loadConfig();
         teamBlocks = new TeamBlocks(this, section("team-wood"));
         teamBlockMarks = new TeamBlockMarks(this, teamBlocks, loadTeamNumbers());
-        randomizer = new TeamColorRandomizer(this, config.getBoolean("random-team-colors"), loadTeamColors(),
-                config.getInt("random-team-colors-bed-distance"));
+        randomizer = new TeamColorRandomizer(this, config.getBoolean("random-team-colors"), loadTeamColors());
         trims = new ArmorTrims(this, section("trims.materials"));
         snowGolems = new SnowGolems(this, config);
         symmetry = new BuildSymmetry(this, teamBlockMarks, config);
-        for (Listener listener : List.of(teamBlockMarks, new TeamWood(this, teamBlocks), trims, new TrimCommand.LobbyCommand(),
-                snowGolems, new GameListener(randomizer, teamBlockMarks))) {
+        // New Bedwars 2.8 lets the shop show and give team planks; before that they are swapped after buying
+        Listener wood = newBedwarsApiVersion >= 1 ? TeamShopWood.create(teamBlocks) : new TeamWood(this, teamBlocks);
+        for (Listener listener : List.of(teamBlockMarks, wood, trims, snowGolems, new GameListener(randomizer, teamBlockMarks))) {
             getServer().getPluginManager().registerEvents(listener, this);
         }
     }
@@ -111,6 +126,30 @@ public final class CloudeWars extends JavaPlugin {
 
     public static NewBedwarsAPI api() {
         return NewBedwarsAPI.get();
+    }
+
+    /** New Bedwars' addon API version: 0 for 2.7-beta, 1 for 2.8-beta; newer features are only used when it has them. */
+    public static int newBedwarsApiVersion() {
+        return newBedwarsApiVersion;
+    }
+
+    private static int apiVersion(NewBedwarsAPI api) {
+        try {
+            return api.getApiVersion();
+        } catch (NoSuchMethodError e) {
+            return 0; // New Bedwars 2.7-beta: getApiVersion() came with 2.8-beta
+        }
+    }
+
+    /** Whether a version name like "2.7-beta" is at least major.minor (names it can't read count as new enough). */
+    private static boolean isAtLeast(String version, int[] needed) {
+        Matcher matcher = Pattern.compile("^(\\d+)\\.(\\d+)").matcher(version);
+        if (!matcher.find()) {
+            return true;
+        }
+        int major = Integer.parseInt(matcher.group(1));
+        int minor = Integer.parseInt(matcher.group(2));
+        return major > needed[0] || major == needed[0] && minor >= needed[1];
     }
 
     public static @Nullable ArmorTrims trims() {
